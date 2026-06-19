@@ -41,12 +41,12 @@ const { hero, deal } = offer;
       <Bullpen />
     </div>
 
-    <ul class="deal" aria-label="How it works">
+    <ul id="how" class="deal" aria-label="How it works">
       {deal.map((step) => (
         <li class="step">
           <span class="n">{step.n}</span>
-          <h3>{step.title}</h3>
-          <p>{step.body}</p>
+          <p class="step-title">{step.title}</p>
+          <p class="step-body">{step.body}</p>
         </li>
       ))}
     </ul>
@@ -110,8 +110,8 @@ const { hero, deal } = offer;
   .step { background: var(--color-surface); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 14px; padding: 1.1rem 1rem; transition: transform 0.25s var(--ease-out-expo), border-color 0.25s, box-shadow 0.25s; }
   .step:hover { transform: translateY(-4px); border-color: rgba(127, 231, 214, 0.35); box-shadow: 0 14px 32px rgba(0, 0, 0, 0.32); }
   .step .n { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; color: var(--color-mint); }
-  .step h3 { margin: 0.45rem 0 0.35rem; font-size: 1rem; color: #fff; }
-  .step p { margin: 0; font-size: 0.82rem; line-height: 1.5; color: var(--color-dim); }
+  .step .step-title { margin: 0.45rem 0 0.35rem; font-size: 1rem; font-weight: 600; color: #fff; }
+  .step .step-body { margin: 0; font-size: 0.82rem; line-height: 1.5; color: var(--color-dim); }
 
   @media (max-width: 640px) { .navlinks { display: none; } .nav { gap: 0; justify-content: space-between; } }
   @media (prefers-reduced-motion: reduce) { .blob { animation: none; } .spotlight { display: none; } }

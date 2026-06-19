@@ -1,5 +1,13 @@
 ---
 import "../styles/global.css";
+
+// Self-hosted Inter (latin subset). Same-origin + font-display:swap removes the
+// render-blocking Google Fonts request chain (DNS → TLS → CSS → font).
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-500.css";
+import "@fontsource/inter/latin-600.css";
+import "@fontsource/inter/latin-700.css";
+
 import ScrollTint from "../components/scroll-tint/ScrollTint.astro";
 import CursorGlow from "../components/cursor-glow/CursorGlow.astro";
 import Reveal from "../components/motion/Reveal.astro";
@@ -14,6 +22,31 @@ const {
   title = "Prodgeek Lab — Let's build something, together",
   description = "An AI venture studio. Bring your idea; I build the brutal last 30% and ship it — for a small stake. Pitch me.",
 } = Astro.props;
+
+// Canonical + absolute asset URLs resolve against `site` in astro.config.mjs.
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL("/og-image.png", Astro.site).href;
+
+// Structured data — an AI venture studio (ProfessionalService) and its founder.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  name: "Prodgeek Lab",
+  url: Astro.site?.href,
+  description,
+  image: ogImage,
+  areaServed: "Toronto, Canada",
+  founder: {
+    "@type": "Person",
+    name: "Prateek",
+    jobTitle: "AI builder & founder",
+  },
+  sameAs: [
+    "https://github.com/schuligan",
+    "https://www.linkedin.com/in/prateekjha6",
+    "https://www.youtube.com/@Beatoid",
+  ],
+};
 ---
 
 <!doctype html>
@@ -22,20 +55,36 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#0b0d14" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Prodgeek Lab" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Prodgeek Lab" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_CA" />
 
-    <!-- Inter — preconnect + the weights the design uses -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(jsonLd)}
     />
   </head>
   <body>
