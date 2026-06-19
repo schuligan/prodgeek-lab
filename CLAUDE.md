@@ -25,14 +25,16 @@ baseball you grip & pitch (The Bullpen game) → booking.
 
 ## Resume checklist
 - [ ] Read Notion Changelog + Agent Operating Guide.
-- [ ] Check what's `Ready`/`In Progress` (Linear active cycle, or Notion Tasks).
-- [ ] `cd ~/prodgeek-site && npm run build` to confirm green before changing things.
+- [ ] Check what's `Ready`/`In Progress` in **Linear** (team PRO — the live queue).
+- [ ] `cd ~/prodgeek-site && npm run build` to confirm green; `npm run dev` for localhost:4321.
+- [ ] After UI changes, **browser-test with Playwright** (navigate → screenshot → read console → inspect DOM). Build-green alone is NOT enough — some bugs only show on screen (a phantom square box hid behind a green build).
 
 ## Update protocol — DO THIS as you work and before ending a session
-- Append a **Changelog** entry in Notion for what changed (date · what · PR if any).
-- Move task/issue **status** in the one source of truth (Linear, else Notion Tasks).
-- If a durable fact changed (decision, URL, key), update auto-memory `prodgeek-lab.md`.
-- Commit + push code with conventional-commit messages.
+- Build green + (for UI) browser-test before committing.
+- Commit + push (conventional commits). **Push auto-deploys to Vercel** AND runs **CI** — confirm CI green via `gh run list`.
+- Append a **Changelog** entry in Notion (date · what · commit).
+- Move issue **status** in **Linear** (team PRO — the live queue).
+- If a durable fact changed (decision, URL, key, gotcha), update auto-memory `prodgeek-lab.md` AND this file.
 
 ## Hard guardrails (never violate)
 - **No confidential names** anywhere: APG / Accept-Pay Global / Frame / Frame.xyz / Persona /
@@ -44,5 +46,8 @@ baseball you grip & pitch (The Bullpen game) → booking.
 ## Key facts
 - Repo: github.com/schuligan/prodgeek-lab (public, `main`). Stack: Astro 5 + React islands + Tailwind v4. Deploy: **Vercel**.
 - Tooling available: Vercel, Supabase (v2 game leaderboard only), Git/gh (schuligan). **Stripe: not used.**
-- Modular architecture: blocks under `src/components/<feature>/`; the game is isolated in `src/modules/bullpen/`; tokens in `src/styles/global.css`; editable copy in `src/content/*.json`.
-- Status: Phase 0 (foundation) shipped & green. Next: Phase 1 section blocks → Phase 2 motion + game.
+- Modular architecture: section blocks under `src/components/<feature>/`; the game isolated in `src/modules/bullpen/`; motion helpers in `src/components/motion/` (Reveal, SmoothScroll/Lenis) + `cursor-glow/` + `scroll-tint/`; tokens in `src/styles/global.css`; editable copy in `src/content/*.json`.
+- **LIVE: https://prodgeek-lab.vercel.app** — Vercel Git integration, auto-deploys every push to `main`.
+- **CI:** `.github/workflows/ci.yml` runs on every push — build + confidential-name grep + secret/email scan. Red = don't trust the deploy.
+- **GOTCHA:** avoid CSS class names that collide with Tailwind v4 utilities (`ring`, `container`, `prose`, `grid`, etc.). `class="ring"` silently added a 1px square box-shadow around the ball — invisible to build/typecheck, only caught in-browser.
+- **Status (2026-06-19): v1 LIVE.** Done: all sections · scroll-tint · hero aurora + global cursor glow · Bullpen game (charge/aim/3D-arc/fanfare/miss-aww/booking) · motion polish (reveals + Lenis) · Vercel deploy · CI gate. **Remaining:** SEO + security headers (PRO-18), Lighthouse/a11y pass (PRO-19), v2 game leaderboard (PRO-27/28), and Prateek's **booking link** (Cal.com/Google → `site.json` `bookingUrl`).
