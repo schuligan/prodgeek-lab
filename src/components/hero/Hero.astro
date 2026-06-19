@@ -1,0 +1,96 @@
+---
+import site from "../../content/site.json";
+import offer from "../../content/offer.json";
+const { hero, deal } = offer;
+---
+
+<section class="hero" aria-labelledby="hero-heading">
+  <nav class="nav" aria-label="Main navigation">
+    <span class="logo">{site.brand}</span>
+    <ul class="navlinks">
+      {site.nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+    </ul>
+    <a class="nav-cta" href={site.cta.href}>Pitch me →</a>
+  </nav>
+
+  <div class="inner">
+    <p class="eyebrow">{hero.eyebrow}</p>
+    <h1 id="hero-heading" class="h1">{hero.headline}</h1>
+    <p class="sub" set:html={hero.sub} />
+
+    <!-- Ball CTA placeholder — replaced by the interactive Bullpen island in Phase 2 -->
+    <div class="cta">
+      <a class="ball-link" href={site.cta.href} aria-label={hero.ballLabel}>{hero.ballLabel}</a>
+      <small class="hint">{hero.ballHint}</small>
+    </div>
+
+    <ul class="deal" aria-label="How it works">
+      {deal.map((step) => (
+        <li class="step">
+          <span class="n">{step.n}</span>
+          <h3>{step.title}</h3>
+          <p>{step.body}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    padding: 6rem clamp(1.5rem, 5vw, 4rem) 4rem;
+    background: radial-gradient(120% 90% at 78% 8%, #1b2440 0%, var(--color-bg) 58%);
+    overflow: hidden;
+  }
+  .nav {
+    position: absolute;
+    top: clamp(1.4rem, 4vw, 2.4rem);
+    left: clamp(1.5rem, 5vw, 4rem);
+    right: clamp(1.5rem, 5vw, 4rem);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .logo { font-weight: 700; letter-spacing: -0.01em; }
+  .navlinks { display: flex; gap: 1.4rem; list-style: none; margin: 0 auto 0 1.5rem; padding: 0; }
+  .navlinks a { color: var(--color-dim); text-decoration: none; font-size: 0.85rem; }
+  .navlinks a:hover { color: var(--color-mint); }
+  .nav-cta {
+    font-size: 0.8rem; font-weight: 600; color: var(--color-mint); text-decoration: none;
+    border: 1px solid rgba(127, 231, 214, 0.35); padding: 0.5rem 0.9rem; border-radius: 999px;
+  }
+  .inner { max-width: 1100px; margin-inline: auto; width: 100%; }
+  .eyebrow {
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--color-mint); margin: 0 0 1rem;
+  }
+  .h1 {
+    font-size: var(--text-hero); line-height: 1.04; font-weight: 650;
+    letter-spacing: -0.025em; margin: 0 0 1.2rem; max-width: 16ch; color: #fff;
+  }
+  .sub { font-size: 1rem; line-height: 1.62; color: var(--color-dim); max-width: 52ch; margin: 0 0 2rem; }
+  .cta { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; margin-bottom: 3rem; }
+  .ball-link {
+    display: inline-block; font-weight: 600; padding: 0.85rem 1.6rem; border-radius: 999px;
+    background: var(--grad-accent); color: var(--color-bg); text-decoration: none;
+    transition: transform var(--dur-normal) var(--ease-out-expo);
+  }
+  .ball-link:hover { transform: translateY(-2px); }
+  .hint { font-size: 0.75rem; color: var(--color-faint); }
+
+  .deal { display: grid; grid-template-columns: 1fr; gap: 0.9rem; list-style: none; margin: 0; padding: 0; max-width: 880px; }
+  @media (min-width: 800px) { .deal { grid-template-columns: repeat(3, 1fr); } }
+  .step {
+    background: var(--color-surface); border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px; padding: 1.1rem 1rem;
+  }
+  .step .n { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; color: var(--color-mint); }
+  .step h3 { margin: 0.45rem 0 0.35rem; font-size: 1rem; color: #fff; }
+  .step p { margin: 0; font-size: 0.82rem; line-height: 1.5; color: var(--color-dim); }
+
+  @media (max-width: 640px) { .navlinks { display: none; } .nav { gap: 0; justify-content: space-between; } }
+</style>

@@ -1,0 +1,70 @@
+---
+import offer from "../../content/offer.json";
+const { whyMe } = offer;
+---
+
+<section id="why-me" class="why" aria-labelledby="why-heading">
+  <div class="inner">
+    <p class="label">Why build with me</p>
+    <h2 id="why-heading">{whyMe.heading}</h2>
+    <p class="lead">{whyMe.lead}</p>
+
+    <ul class="pillars">
+      {whyMe.pillars.map((p) => (
+        <li class="pillar">
+          <span class="plabel">{p.label}</span>
+          <h3>{p.title}</h3>
+          <p>{p.body}</p>
+        </li>
+      ))}
+    </ul>
+
+    <div class="bench">
+      <h3 class="bench-h">And I don't build alone.</h3>
+      <ul>
+        {whyMe.bench.map((b) => (
+          <li>
+            <h4>{b.title}</h4>
+            <p>{b.body}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <p class="commit">{whyMe.commit}</p>
+    <p class="creds">{whyMe.credentials}</p>
+  </div>
+</section>
+
+<style>
+  .why {
+    position: relative;
+    padding: var(--space-section) clamp(1.5rem, 5vw, 4rem);
+    background: radial-gradient(120% 80% at 20% 0%, #11302c 0%, var(--color-bg) 60%);
+  }
+  .inner { max-width: 1000px; margin-inline: auto; }
+  .label { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-teal); margin: 0 0 0.9rem; }
+  h2 { font-size: var(--text-h2); font-weight: 640; letter-spacing: -0.015em; margin: 0 0 0.8rem; max-width: 20ch; color: #fff; }
+  h2 :global(em) { font-style: normal; color: var(--color-teal); }
+  .lead { font-size: 1rem; line-height: 1.6; color: var(--color-dim); max-width: 58ch; margin: 0 0 2rem; }
+
+  .pillars { display: grid; grid-template-columns: 1fr; gap: 1rem; list-style: none; margin: 0 0 2rem; padding: 0; }
+  @media (min-width: 820px) { .pillars { grid-template-columns: repeat(3, 1fr); } }
+  .pillar { background: var(--color-surface); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.2rem 1.1rem; }
+  .pillar:last-child { border-color: rgba(94, 234, 212, 0.4); }
+  .plabel { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-mint); }
+  .pillar h3 { margin: 0.5rem 0 0.4rem; font-size: 1.05rem; color: #fff; }
+  .pillar:last-child h3 { color: var(--color-teal); }
+  .pillar p { margin: 0; font-size: 0.85rem; line-height: 1.5; color: var(--color-dim); }
+
+  .bench { border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1.6rem; margin-bottom: 1.8rem; }
+  .bench-h { font-size: 1.1rem; color: #fff; margin: 0 0 1rem; }
+  .bench ul { display: grid; grid-template-columns: 1fr; gap: 0.9rem; list-style: none; margin: 0; padding: 0; }
+  @media (min-width: 820px) { .bench ul { grid-template-columns: repeat(3, 1fr); } }
+  .bench li { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem; }
+  .bench h4 { margin: 0 0 0.3rem; font-size: 0.9rem; color: #fff; }
+  .bench li p { margin: 0; font-size: 0.78rem; line-height: 1.45; color: var(--color-dim); }
+
+  .commit { font-size: 0.95rem; line-height: 1.55; color: var(--color-ink); border-left: 2px solid var(--color-teal); padding-left: 1rem; max-width: 58ch; }
+  .creds { font-size: 0.8rem; color: var(--color-mint); margin-top: 0.9rem; opacity: 0.9; }
+</style>

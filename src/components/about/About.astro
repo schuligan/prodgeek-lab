@@ -1,0 +1,29 @@
+---
+import about from "../../content/about.json";
+---
+
+<section id="about" class="about" aria-labelledby="about-heading">
+  <div class="inner">
+    <p class="label">About</p>
+    <h2 id="about-heading">{about.heading}</h2>
+    {about.paragraphs.map((p) => <p class="body">{p}</p>)}
+    <p class="aside">{about.aside}</p>
+  </div>
+</section>
+
+<style>
+  .about {
+    position: relative;
+    padding: var(--space-section) clamp(1.5rem, 5vw, 4rem);
+    background: radial-gradient(120% 80% at 25% 0%, #2e2410 0%, var(--color-bg) 60%);
+  }
+  .inner { max-width: 760px; margin-inline: auto; }
+  .label { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-amber); margin: 0 0 0.9rem; }
+  h2 { font-size: var(--text-h2); font-weight: 640; letter-spacing: -0.015em; margin: 0 0 1rem; max-width: 18ch; color: #fff; }
+  .body { font-size: 1rem; line-height: 1.65; color: var(--color-dim); margin: 0 0 1rem; }
+  .aside {
+    display: inline-block; margin-top: 0.6rem; font-size: 0.85rem; color: var(--color-ink);
+    background: var(--color-surface); border: 1px solid rgba(255, 255, 255, 0.09);
+    padding: 0.6rem 0.9rem; border-radius: 10px;
+  }
+</style>

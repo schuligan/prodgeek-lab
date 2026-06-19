@@ -1,81 +1,24 @@
 ---
 import Base from "../layouts/Base.astro";
-import site from "../content/site.json";
-import offer from "../content/offer.json";
+import Hero from "../components/hero/Hero.astro";
+import WhyMe from "../components/why-me/WhyMe.astro";
+import Mirror from "../components/mirror/Mirror.astro";
+import About from "../components/about/About.astro";
+import Pitch from "../components/pitch/Pitch.astro";
+import Footer from "../components/footer/Footer.astro";
 
-// Phase 0 foundation: a working, on-brand hero shell that builds green.
-// The full section blocks (Why-me, Sound-like-you, About, Pitch-me, Footer) and
-// the interactive Bullpen game island land in Phase 1 / Phase 2 — each as its own
-// isolated block under src/components/<feature>/ and src/modules/bullpen/.
-const { hero } = offer;
+// Modular composition: each block is isolated under src/components/<feature>/.
+// Phase 2 layers in the scroll-tint controller, hero aurora/spotlight, and the
+// Bullpen game island (src/modules/bullpen/) — none of which touch these blocks.
 ---
 
 <Base>
   <main>
-    <section class="hero" aria-labelledby="hero-heading">
-      <nav class="nav" aria-label="Main navigation">
-        <span class="logo">{site.brand}</span>
-        <ul class="navlinks">
-          {site.nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
-        </ul>
-      </nav>
-
-      <p class="eyebrow">{hero.eyebrow}</p>
-      <h1 id="hero-heading" class="h1">{hero.headline}</h1>
-      <p class="sub">{hero.sub}</p>
-
-      <!-- Ball CTA placeholder — replaced by the interactive Bullpen island in Phase 2 -->
-      <div class="cta">
-        <a class="ball-link" href={site.cta.href}>{hero.ballLabel}</a>
-        <small class="hint">{hero.ballHint}</small>
-      </div>
-    </section>
+    <Hero />
+    <WhyMe />
+    <Mirror />
+    <About />
+    <Pitch />
   </main>
-
-  <style>
-    .hero {
-      position: relative;
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 clamp(1.5rem, 5vw, 4rem);
-      max-width: 1200px;
-      margin-inline: auto;
-      background: radial-gradient(120% 90% at 78% 8%, #1b2440 0%, var(--color-bg) 58%);
-    }
-    .nav {
-      position: absolute;
-      top: clamp(1.5rem, 4vw, 2.5rem);
-      left: clamp(1.5rem, 5vw, 4rem);
-      right: clamp(1.5rem, 5vw, 4rem);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .logo { font-weight: 700; letter-spacing: -0.01em; }
-    .navlinks { display: flex; gap: 1.4rem; list-style: none; margin: 0; padding: 0; }
-    .navlinks a { color: var(--color-dim); text-decoration: none; font-size: 0.85rem; }
-    .navlinks a:hover { color: var(--color-mint); }
-    .eyebrow {
-      font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--color-mint); margin: 0 0 1rem;
-    }
-    .h1 {
-      font-size: var(--text-hero); line-height: 1.04; font-weight: 650;
-      letter-spacing: -0.025em; margin: 0 0 1.2rem; max-width: 16ch;
-      background: var(--grad-accent); -webkit-background-clip: text; background-clip: text;
-      color: transparent;
-    }
-    .sub { font-size: 1rem; line-height: 1.62; color: var(--color-dim); max-width: 52ch; margin: 0 0 2rem; }
-    .cta { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
-    .ball-link {
-      display: inline-block; font-weight: 600; padding: 0.85rem 1.5rem; border-radius: 999px;
-      background: var(--grad-accent); color: var(--color-bg); text-decoration: none;
-      transition: transform var(--dur-normal) var(--ease-out-expo);
-    }
-    .ball-link:hover { transform: translateY(-2px); }
-    .hint { font-size: 0.75rem; color: var(--color-faint); }
-    @media (max-width: 640px) { .navlinks { display: none; } }
-  </style>
+  <Footer />
 </Base>

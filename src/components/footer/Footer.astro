@@ -1,0 +1,29 @@
+---
+import site from "../../content/site.json";
+---
+
+<footer class="footer">
+  <div class="inner">
+    <span class="logo">{site.brand}</span>
+    <ul class="socials">
+      {site.socials.map((s) => (
+        <li><a href={s.href} target="_blank" rel="noopener noreferrer">{s.label}</a></li>
+      ))}
+    </ul>
+    <span class="copy">© Prodgeek Lab 2026</span>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding: 2.5rem clamp(1.5rem, 5vw, 4rem);
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    background: var(--color-bg);
+  }
+  .inner { max-width: 1000px; margin-inline: auto; display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+  .logo { font-weight: 700; }
+  .socials { display: flex; gap: 1.2rem; list-style: none; margin: 0 auto 0 0; padding: 0; }
+  .socials a { color: var(--color-dim); text-decoration: none; font-size: 0.85rem; }
+  .socials a:hover { color: var(--color-mint); }
+  .copy { font-size: 0.78rem; color: var(--color-faint); }
+</style>

@@ -1,0 +1,42 @@
+---
+import site from "../../content/site.json";
+const hasCalendly = site.booking.calendlyUrl && !site.booking.calendlyUrl.startsWith("REPLACE");
+const bookHref = hasCalendly ? site.booking.calendlyUrl : "#";
+---
+
+<section id="pitch" class="pitch" aria-labelledby="pitch-heading">
+  <div class="inner">
+    <p class="label">Pitch me</p>
+    <h2 id="pitch-heading">Tell me what you want to build.</h2>
+    <p class="lead">15 minutes, free, no pressure. Bring a half-idea or a half-built thing — leave with a real sense of how we'd make it live.</p>
+
+    <a class="book" href={bookHref} data-calendly={hasCalendly ? "true" : "false"}>Book a free chat →</a>
+
+    <fieldset class="brings">
+      <legend>What brings you here?</legend>
+      <span>Learning</span><span>Build my idea</span><span>Work together</span>
+    </fieldset>
+  </div>
+</section>
+
+<style>
+  .pitch {
+    position: relative;
+    padding: var(--space-section) clamp(1.5rem, 5vw, 4rem);
+    background: radial-gradient(120% 80% at 75% 0%, #331826 0%, var(--color-bg) 60%);
+  }
+  .inner { max-width: 760px; margin-inline: auto; }
+  .label { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-rose); margin: 0 0 0.9rem; }
+  h2 { font-size: var(--text-h2); font-weight: 640; letter-spacing: -0.015em; margin: 0 0 0.8rem; color: #fff; }
+  .lead { font-size: 1rem; line-height: 1.6; color: var(--color-dim); max-width: 50ch; margin: 0 0 1.8rem; }
+  .book {
+    display: inline-block; font-weight: 600; padding: 0.9rem 1.7rem; border-radius: 999px;
+    background: var(--grad-accent); color: var(--color-bg); text-decoration: none;
+    transition: transform var(--dur-normal) var(--ease-out-expo);
+  }
+  .book:hover { transform: translateY(-2px); }
+  .brings { border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 0.9rem 1rem; margin-top: 1.6rem; max-width: 30rem; display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; }
+  .brings legend { font-size: 0.78rem; color: var(--color-faint); padding: 0 0.4rem; }
+  .brings span { font-size: 0.85rem; color: var(--color-dim); }
+  .brings span::before { content: "· "; color: var(--color-rose); }
+</style>
