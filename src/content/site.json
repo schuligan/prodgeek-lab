@@ -9,7 +9,7 @@
   ],
   "cta": { "label": "Pitch me your idea", "href": "#pitch" },
   "booking": {
-    "bookingUrl": "REPLACE_WITH_BOOKING_URL",
+    "bookingUrl": "https://cal.com/prateek-jha",
     "note": "Any scheduler works — Cal.com (free/open-source), Google Appointment Schedule (free), or Calendly. Paste the URL here. Contact email is server-only (env CONTACT_EMAIL), never in this file or the page."
   },
   "socials": [
