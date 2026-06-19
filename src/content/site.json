@@ -9,8 +9,8 @@
   ],
   "cta": { "label": "Pitch me your idea", "href": "#pitch" },
   "booking": {
-    "calendlyUrl": "REPLACE_WITH_CALENDLY_URL",
-    "note": "Real Calendly link goes here. Contact email is server-only (env var CONTACT_EMAIL), never in this file or the page."
+    "bookingUrl": "REPLACE_WITH_BOOKING_URL",
+    "note": "Any scheduler works — Cal.com (free/open-source), Google Appointment Schedule (free), or Calendly. Paste the URL here. Contact email is server-only (env CONTACT_EMAIL), never in this file or the page."
   },
   "socials": [
     { "label": "GitHub", "href": "https://github.com/schuligan" },

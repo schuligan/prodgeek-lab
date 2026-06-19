@@ -1,7 +1,7 @@
 ---
 import site from "../../content/site.json";
-const hasCalendly = site.booking.calendlyUrl && !site.booking.calendlyUrl.startsWith("REPLACE");
-const bookHref = hasCalendly ? site.booking.calendlyUrl : "#";
+const hasBooking = site.booking.bookingUrl && !site.booking.bookingUrl.startsWith("REPLACE");
+const bookHref = hasBooking ? site.booking.bookingUrl : "#";
 ---
 
 <section id="pitch" class="pitch" aria-labelledby="pitch-heading" data-tint="rgba(244,114,182,.42)">
@@ -10,7 +10,7 @@ const bookHref = hasCalendly ? site.booking.calendlyUrl : "#";
     <h2 id="pitch-heading">Tell me what you want to build.</h2>
     <p class="lead">15 minutes, free, no pressure. Bring a half-idea or a half-built thing — leave with a real sense of how we'd make it live.</p>
 
-    <a class="book" href={bookHref} data-calendly={hasCalendly ? "true" : "false"}>Book a free chat →</a>
+    <a class="book" href={bookHref} data-booking={hasBooking ? "true" : "false"}>Book a free chat →</a>
 
     <fieldset class="brings">
       <legend>What brings you here?</legend>

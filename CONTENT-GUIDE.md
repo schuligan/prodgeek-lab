@@ -8,7 +8,7 @@ Edit, save, and the site rebuilds. You never touch code.
 | Want to change… | Edit this file |
 | --- | --- |
 | Brand name, nav links, social links, the CTA label | `src/content/site.json` |
-| Your booking (Calendly) link | `src/content/site.json` → `booking.calendlyUrl` |
+| Your booking link (Cal.com / Google / Calendly) | `src/content/site.json` → `booking.bookingUrl` |
 | The hero headline / sub / ball label | `src/content/offer.json` → `hero` |
 | The 3-step deal | `src/content/offer.json` → `deal` |
 | The "Why me" pillars + your bench | `src/content/offer.json` → `whyMe` |
