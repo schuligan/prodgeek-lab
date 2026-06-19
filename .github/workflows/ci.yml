@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# The gate: every push is verified before it counts. Red = don't trust the deploy.
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Guardrail — no confidential names in shippable code
+        run: |
+          if grep -rniE 'accept[- ]?pay|\bAPG\b|frame\.xyz|\bcashco\b|complyadvantage|\bAMCS\b|payliance|\bpersona\b' src public; then
+            echo "::error::Confidential name found in src/ or public/"
+            exit 1
+          fi
+          echo "clean — no confidential names"
+
+      - name: Guardrail — no leaked secrets or email
+        run: |
+          if grep -rniE 'masters\.prateek@gmail|sk_live|service_role|BEGIN (RSA|OPENSSH|PRIVATE)' src public; then
+            echo "::error::Secret or contact email leaked into client code"
+            exit 1
+          fi
+          echo "clean — no secrets/email in client"
+
+      - name: Build
+        run: npm run build
