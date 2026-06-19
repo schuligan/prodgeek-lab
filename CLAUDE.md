@@ -20,7 +20,8 @@ baseball you grip & pitch (The Bullpen game) → booking.
 
 ## Single source of truth (avoid drift!)
 - **Linear = execution** (issues, sprints, status). **Notion = docs** (PRD, decisions, mockups). **Git = code.**
-- Do NOT double-track status. If Linear writes aren't yet enabled, the Notion **Tasks** page is the queue.
+- Do NOT double-track status. **Linear is the live queue** (team PRO, PRO-5→30); the Notion **Tasks** page is frozen/history.
+- **CADENCE — never stall on a cycle.** Linear's minimum cycle is 1 week, but a cycle is a *reporting window, not a throttle*. Build continuously; move each issue Todo → In Progress → Done the moment it's ready; NEVER wait for a cycle boundary to ship. Prateek wants near-continuous delivery (he'd run 2-hour "sprints" if Linear allowed).
 
 ## Resume checklist
 - [ ] Read Notion Changelog + Agent Operating Guide.
