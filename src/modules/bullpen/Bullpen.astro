@@ -1,7 +1,7 @@
 ---
-// The Bullpen (PRO-21→26): a baseball you grip + pitch — the hero CTA, as a game.
-// Isolated module: all logic/markup/styles live here. Removing <Bullpen /> from the
-// hero leaves the site fully working. v1 = local (no backend); v2 adds the leaderboard.
+// The Bullpen (PRO-21→26, redesign PRO-31): grip the ball, charge, flick it up-right
+// in a 3D arc to the "Pitch me" target (the nav button). Full charge + aimed = hit →
+// stadium riff + cheers → booking. Under-charged = falls short. Isolated module.
 import site from "../../content/site.json";
 
 const hasBooking =
@@ -9,17 +9,12 @@ const hasBooking =
 const bookHref = hasBooking ? site.booking.bookingUrl : "#";
 ---
 
-<div
-  class="bullpen"
-  data-has-booking={hasBooking ? "true" : "false"}
-  data-booking-url={bookHref}
->
-  <!-- the ball CTA (sits under the headline) -->
+<div class="bullpen" data-has-booking={hasBooking ? "true" : "false"} data-booking-url={bookHref}>
   <div class="cta-row">
     <div class="ballwrap" id="bp-wrap">
       <svg class="ring" viewBox="0 0 76 76" aria-hidden="true">
-        <circle cx="38" cy="38" r="35" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3"></circle>
-        <circle id="bp-prog" cx="38" cy="38" r="35" fill="none" stroke="var(--color-mint)" stroke-width="3" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220" transform="rotate(-90 38 38)"></circle>
+        <circle class="ring-bg" cx="38" cy="38" r="34" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3"></circle>
+        <circle id="bp-prog" cx="38" cy="38" r="34" fill="none" stroke="var(--color-mint)" stroke-width="3" stroke-linecap="round" stroke-dasharray="214" stroke-dashoffset="214" transform="rotate(-90 38 38)"></circle>
       </svg>
       <svg id="bp-ball" viewBox="0 0 100 100" role="button" tabindex="0" aria-label="Pitch the ball to book a free chat">
         <circle cx="50" cy="50" r="46" fill="#fdfdfb" stroke="#e2e0da" stroke-width="1.5"></circle>
@@ -29,18 +24,16 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
     </div>
     <div class="label">
       Pitch it. For real.
-      <small id="bp-hint">hold or drag the ball →</small>
+      <small id="bp-hint">hold to power up, flick toward "Pitch me" →</small>
     </div>
     <button class="mute" id="bp-mute" type="button" aria-label="Mute crowd sound">🔊</button>
   </div>
   <a class="skip" href={bookHref} id="bp-skip">prefer to skip the game? book a time →</a>
 
-  <!-- overlays (positioned within the hero) -->
-  <div class="mitt" id="bp-mitt" aria-hidden="true"></div>
   <div class="fb" id="bp-fb" aria-hidden="true"><span class="fb-big" id="bp-fb-big"></span></div>
   <div class="roar" id="bp-roar" aria-hidden="true"></div>
   <div class="book" id="bp-book" role="dialog" aria-label="Book a free chat" aria-hidden="true">
-    <h4 id="bp-book-title">⚾ Strike — nice arm.</h4>
+    <h4>⚾ Strike — nice arm.</h4>
     <p>Grab a free 15-min chat. Bring the idea you can't stop thinking about.</p>
     <a class="book-cta" id="bp-book-cta" href={bookHref}>Book a free chat →</a>
     <button class="book-close" id="bp-book-close" type="button">maybe later</button>
@@ -51,39 +44,34 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   .bullpen { position: relative; }
   .cta-row { display: flex; align-items: center; gap: 1rem; }
   .ballwrap { position: relative; width: 64px; height: 64px; flex: none; }
-  .ring { position: absolute; inset: -6px; width: 76px; height: 76px; }
-  #bp-ball { position: absolute; inset: 0; width: 64px; height: 64px; cursor: grab; filter: drop-shadow(0 6px 14px rgba(0,0,0,.5)); will-change: transform; z-index: 4; }
+  .ring { position: absolute; inset: -6px; width: 76px; height: 76px; pointer-events: none; }
+  #bp-ball {
+    position: absolute; inset: 0; width: 64px; height: 64px; cursor: grab;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,.5)); will-change: transform; z-index: 4;
+    outline: none; -webkit-tap-highlight-color: transparent; touch-action: none;
+  }
   #bp-ball.grab { cursor: grabbing; }
-  #bp-ball.flying { z-index: 8; }
+  #bp-ball.flying { z-index: 30; }
+  /* round focus indicator (kills Safari's square focus box) */
+  #bp-wrap:focus-within .ring-bg { stroke: var(--color-mint); }
   .label { font-size: 0.95rem; font-weight: 600; color: #fff; }
-  .label small { display: block; font-weight: 400; font-size: 0.75rem; color: var(--color-dim); margin-top: 1px; }
+  .label small { display: block; font-weight: 400; font-size: 0.72rem; color: var(--color-dim); margin-top: 1px; }
   .mute { margin-left: auto; background: none; border: 0; font-size: 0.95rem; cursor: pointer; opacity: 0.6; }
   .mute:hover { opacity: 1; }
   .skip { display: inline-block; margin-top: 1rem; font-size: 0.78rem; color: var(--color-faint); text-decoration: underline; text-underline-offset: 3px; }
   .skip:hover { color: var(--color-mint); }
 
-  .mitt {
-    position: absolute; right: 8%; top: 18%; width: 74px; height: 74px; z-index: 3;
-    border-radius: 50% 50% 50% 8px;
-    background: radial-gradient(circle at 40% 35%, #5a3a1e, #2e1c0e);
-    box-shadow: inset 0 0 14px rgba(0,0,0,.6), 0 8px 20px rgba(0,0,0,.4);
-    opacity: 0; transition: opacity .3s, transform .15s; pointer-events: none;
-  }
-  .mitt.show { opacity: 0.85; }
-  .mitt.pop { animation: bp-pop .35s ease; }
-  @keyframes bp-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+  .fb { position: fixed; right: 7%; top: 14%; z-index: 31; text-align: center; opacity: 0; pointer-events: none; }
+  .fb.show { animation: bp-fb 1.3s cubic-bezier(.16,1,.3,1); }
+  @keyframes bp-fb { 0% { opacity: 0; transform: translateY(10px) scale(.8); } 20% { opacity: 1; transform: none; } 78% { opacity: 1; } 100% { opacity: 0; } }
+  .fb-big { font-size: clamp(1.5rem, 3.5vw, 2.2rem); font-weight: 750; color: var(--color-amber); text-shadow: 0 2px 18px rgba(0,0,0,.5); }
 
-  .fb { position: absolute; right: 6%; top: 6%; z-index: 9; text-align: center; opacity: 0; pointer-events: none; }
-  .fb.show { animation: bp-fb 1.2s cubic-bezier(.16,1,.3,1); }
-  @keyframes bp-fb { 0% { opacity: 0; transform: translateY(10px) scale(.8); } 22% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; } }
-  .fb-big { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 750; color: var(--color-amber); }
-
-  .roar { position: fixed; inset: 0; z-index: 7; background: #fff; opacity: 0; pointer-events: none; }
-  .roar.go { animation: bp-roar .5s ease; }
-  @keyframes bp-roar { 0% { opacity: 0; } 30% { opacity: .18; } 100% { opacity: 0; } }
+  .roar { position: fixed; inset: 0; z-index: 29; background: radial-gradient(60% 50% at 85% 10%, rgba(255,245,210,.5), transparent 60%); opacity: 0; pointer-events: none; }
+  .roar.go { animation: bp-roar .6s ease; }
+  @keyframes bp-roar { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
 
   .book {
-    position: absolute; right: 4%; top: 38%; width: min(320px, 80vw); z-index: 10;
+    position: fixed; right: 5%; top: 16%; width: min(320px, 84vw); z-index: 32;
     background: rgba(17,19,29,.97); backdrop-filter: blur(6px);
     border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 1.2rem;
     opacity: 0; transform: translateY(14px); pointer-events: none; transition: all .5s var(--ease-out-expo);
@@ -95,141 +83,153 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   .book-close { display: block; margin-top: .7rem; background: none; border: 0; color: var(--color-faint); font-size: .75rem; cursor: pointer; }
 
   @media (prefers-reduced-motion: reduce) {
-    #bp-ball, .mitt, .book { transition: none; }
-    .fb.show, .roar.go, .mitt.pop { animation: none; }
+    #bp-ball, .book { transition: none; }
+    .fb.show, .roar.go { animation: none; }
   }
 </style>
 
 <script>
-  type El = HTMLElement | null;
   const root = document.querySelector<HTMLElement>(".bullpen");
   const hero = document.querySelector<HTMLElement>(".hero");
-  if (root && hero) {
+  const target = document.getElementById("bp-target");
+  if (root && hero && target) {
     const ball = document.getElementById("bp-ball")!;
     const prog = document.getElementById("bp-prog") as unknown as SVGCircleElement;
-    const wrap = document.getElementById("bp-wrap")!;
     const hint = document.getElementById("bp-hint")!;
-    const mitt = document.getElementById("bp-mitt")!;
     const fb = document.getElementById("bp-fb")!;
     const fbBig = document.getElementById("bp-fb-big")!;
     const roar = document.getElementById("bp-roar")!;
     const book = document.getElementById("bp-book")!;
     const muteBtn = document.getElementById("bp-mute")!;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     const hasBooking = root.dataset.hasBooking === "true";
     const bookingUrl = root.dataset.bookingUrl || "#";
-    const DASH = 220, HOLD = 1400;
-    let charging = false, t0 = 0, dragged = false, sx = 0, sy = 0, busy = false, raf = 0;
 
-    // --- sound (synthesised — no asset; default ON, local mute) ---
+    const DASH = 214, CHARGE = 1100, HIT_POWER = 0.8;
+    let charging = false, t0 = 0, lastX = 0, lastY = 0, startY = 0, busy = false, raf = 0;
+
+    // ---- sound: stadium "tan-tan-tan" riff + cheer (synthesised) ----
     let muted = localStorage.getItem("bp_muted") === "1";
     let ac: AudioContext | null = null;
-    const setMute = () => { muteBtn.textContent = muted ? "🔇" : "🔊"; muteBtn.setAttribute("aria-label", muted ? "Unmute crowd sound" : "Mute crowd sound"); };
+    const setMute = () => { muteBtn.textContent = muted ? "🔇" : "🔊"; };
     setMute();
     muteBtn.addEventListener("click", () => { muted = !muted; localStorage.setItem("bp_muted", muted ? "1" : "0"); setMute(); });
-    function pitchSound() {
-      if (muted) return;
-      try {
-        ac = ac || new (window.AudioContext || (window as any).webkitAudioContext)();
-        const now = ac.currentTime;
-        // glove "pop": short filtered noise burst
-        const len = Math.floor(ac.sampleRate * 0.5);
-        const buf = ac.createBuffer(1, len, ac.sampleRate);
-        const d = buf.getChannelData(0);
-        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
-        const src = ac.createBufferSource(); src.buffer = buf;
-        const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 900;
-        const g = ac.createGain(); g.gain.setValueAtTime(0.0001, now);
-        g.gain.exponentialRampToValueAtTime(0.5, now + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.45); // crowd swell tail
-        src.connect(bp); bp.connect(g); g.connect(ac.destination);
-        src.start(now); src.stop(now + 0.5);
-      } catch (_) { /* audio not available — ignore */ }
+    function ctx() { if (!ac) ac = new (window.AudioContext || (window as any).webkitAudioContext)(); return ac!; }
+    function note(freq: number, t: number, dur: number, vol: number) {
+      const a = ctx(), o = a.createOscillator(), g = a.createGain();
+      o.type = "triangle"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, a.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(vol, a.currentTime + t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + t + dur);
+      o.connect(g); g.connect(a.destination); o.start(a.currentTime + t); o.stop(a.currentTime + t + dur + 0.05);
     }
+    function cheer(delay: number) {
+      const a = ctx(), len = Math.floor(a.sampleRate * 0.7), buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1);
+      const src = a.createBufferSource(); src.buffer = buf;
+      const bp = a.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1100; bp.Q.value = 0.7;
+      const g = a.createGain(); g.gain.setValueAtTime(0.0001, a.currentTime + delay);
+      g.gain.linearRampToValueAtTime(0.32, a.currentTime + delay + 0.25);
+      g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + delay + 0.7);
+      src.connect(bp); bp.connect(g); g.connect(a.destination); src.start(a.currentTime + delay); src.stop(a.currentTime + delay + 0.7);
+    }
+    function hitSound() {
+      if (muted) return;
+      try { const f = [392, 523, 659, 784]; f.forEach((hz, i) => note(hz, i * 0.09, 0.14, 0.35)); note(1046, 0.4, 0.25, 0.4); cheer(0.42); } catch (_) {}
+    }
+    function missSound() { if (muted) return; try { note(300, 0, 0.18, 0.25); note(180, 0.12, 0.22, 0.2); } catch (_) {} }
 
     const ELITE = ["PUNCHOUT! 🔥", "FILTHY.", "Pure cheddar 🧀", "That's an aspirin.", "Bringing the GAS."];
-    const GOOD = ["Nasty slider.", "Painted the corner.", "Sick heat.", "Caught the black."];
+    const GOOD = ["Nasty heat.", "Painted the corner.", "Sick slider."];
+    const SHORT = ["In the dirt — builders don't quit.", "Short. Power up — hold longer.", "Bounced it. Reload."];
+    const WIDE = ["Sailed it. Aim for the stands.", "Yanked it wide. Re-fire."];
     const pick = (a: string[]) => a[Math.floor(Math.random() * a.length)];
 
-    const heroPointerReduce = reduce;
-    function setBall(x: number, y: number) { ball.style.transform = `translate(${x}px,${y}px)`; }
-    function reset() { ball.style.transform = ""; ball.classList.remove("flying"); prog.style.strokeDashoffset = String(DASH); busy = false; hint.textContent = "again? hold or drag →"; }
+    function say(t: string) { fbBig.textContent = t; fb.classList.remove("show"); void fb.offsetWidth; fb.classList.add("show"); }
+    function reset() { ball.style.transform = ""; ball.classList.remove("flying"); prog.style.strokeDashoffset = String(DASH); busy = false; hint.textContent = "again? hold &amp; flick toward \"Pitch me\" →"; }
 
-    function startCharge(clientX: number, clientY: number) {
+    function startCharge(x: number, y: number) {
       if (busy) return;
-      charging = true; dragged = false; t0 = Date.now(); sx = clientX; sy = clientY; ball.classList.add("grab");
+      charging = true; t0 = Date.now(); lastX = x; lastY = y; startY = y; ball.classList.add("grab");
       const tick = () => {
         if (!charging) return;
-        const p = Math.min(1, (Date.now() - t0) / HOLD);
+        const p = Math.min(1, (Date.now() - t0) / CHARGE);
         prog.style.strokeDashoffset = String(DASH * (1 - p));
-        if (p >= 1 || dragged) { release(); return; }
+        ball.style.transform = `scale(${1 + p * 0.12})`;
         raf = requestAnimationFrame(tick);
       };
       tick();
     }
-    function endCharge() {
-      if (!charging) return;
-      const held = Date.now() - t0;
-      if (held >= HOLD * 0.6 || dragged) { release(); }
-      else { charging = false; cancelAnimationFrame(raf); prog.style.strokeDashoffset = String(DASH); ball.classList.remove("grab"); hint.textContent = "give it some mustard — hold or drag!"; setTimeout(() => { hint.textContent = "hold or drag the ball →"; }, 1500); }
+    function release() {
+      if (!charging || busy) return;
+      charging = false; cancelAnimationFrame(raf); ball.classList.remove("grab");
+      const power = Math.min(1, (Date.now() - t0) / CHARGE);
+      const aimedWrong = lastY > startY + 50; // actively dragged downward = bad aim
+      prog.style.strokeDashoffset = String(DASH);
+      ball.style.transform = "";
+      if (power < 0.45) { busy = true; fire("short"); }
+      else if (aimedWrong) { busy = true; fire("wide"); }
+      else if (power >= HIT_POWER) { busy = true; fire("hit"); }
+      else { busy = true; fire("short"); }
     }
-    function release() { if (busy) return; charging = false; busy = true; cancelAnimationFrame(raf); prog.style.strokeDashoffset = String(DASH); ball.classList.remove("grab"); pitch(); }
 
-    function pitch() {
+    function fire(kind: "hit" | "short" | "wide") {
       ball.classList.add("flying");
       const br = ball.getBoundingClientRect();
-      const mr = mitt.getBoundingClientRect();
-      const x0 = br.left, y0 = br.top;
-      const dx = (mr.left + mr.width / 2 - 24) - x0;
-      const dy = (mr.top + mr.height / 2 - 24) - y0;
-      if (reduce) { land(); return; }
-      const dur = 620; let start = 0;
-      const frame = (ts: number) => {
+      const tr = target.getBoundingClientRect();
+      const homeX = br.left + br.width / 2, homeY = br.top + br.height / 2;
+      let endX: number, endY: number, lift: number;
+      if (kind === "hit") { endX = tr.left + tr.width / 2 - homeX; endY = tr.top + tr.height / 2 - homeY; lift = Math.hypot(endX, endY) * 0.32; }
+      else if (kind === "short") { endX = (tr.left + tr.width / 2 - homeX) * 0.45; endY = 150; lift = 220; }
+      else { endX = (tr.left - homeX) * 0.5; endY = 120; lift = 240; }
+      if (reduce) { return endFire(kind, tr, homeX, homeY); }
+      const dur = kind === "hit" ? 680 : 560; let start = 0;
+      const step = (ts: number) => {
         if (!start) start = ts;
         const p = Math.min(1, (ts - start) / dur);
-        const e = 1 - Math.pow(1 - p, 2);
-        const x = dx * e, y = dy * e - Math.sin(p * Math.PI) * 90;
-        ball.style.transform = `translate(${x}px,${y}px) rotate(${p * 720}deg)`;
-        if (p < 1) requestAnimationFrame(frame); else land();
+        const x = endX * p;
+        const y = endY * p - Math.sin(p * Math.PI) * lift;
+        const s = 1 + Math.sin(p * Math.PI) * 0.3; // depth
+        ball.style.transform = `translate(${x}px,${y}px) scale(${s}) rotate(${p * 760}deg)`;
+        if (p < 1) requestAnimationFrame(step); else endFire(kind, tr, homeX, homeY);
       };
-      requestAnimationFrame(frame);
+      requestAnimationFrame(step);
     }
 
-    function land() {
-      pitchSound();
-      mitt.classList.add("pop"); setTimeout(() => mitt.classList.remove("pop"), 400);
-      if (!reduce) { roar.classList.remove("go"); void roar.offsetWidth; roar.classList.add("go"); confettiBurst(); }
-      fbBig.textContent = Math.random() < 0.5 ? pick(ELITE) : pick(GOOD);
-      fb.classList.remove("show"); void fb.offsetWidth; fb.classList.add("show");
-      // open booking
-      setTimeout(() => {
-        if (hasBooking) { window.open(bookingUrl, "_blank", "noopener"); reset(); }
-        else { book.classList.add("show"); book.setAttribute("aria-hidden", "false"); reset(); }
-      }, 650);
+    function endFire(kind: string, tr: DOMRect, homeX: number, homeY: number) {
+      if (kind === "hit") {
+        target.classList.add("hit"); setTimeout(() => target.classList.remove("hit"), 700);
+        if (!reduce) { roar.classList.remove("go"); void roar.offsetWidth; roar.classList.add("go"); confetti(tr.left + tr.width / 2, tr.top + tr.height / 2); }
+        hitSound();
+        say(Math.random() < 0.5 ? pick(ELITE) : pick(GOOD));
+        setTimeout(() => {
+          if (hasBooking) { window.open(bookingUrl, "_blank", "noopener"); }
+          else { book.classList.add("show"); book.setAttribute("aria-hidden", "false"); }
+          reset();
+        }, 700);
+      } else {
+        missSound();
+        say(kind === "short" ? pick(SHORT) : pick(WIDE));
+        setTimeout(reset, 500);
+      }
     }
 
-    function confettiBurst() {
-      const mr = mitt.getBoundingClientRect();
-      const hr = hero.getBoundingClientRect();
+    function confetti(cx: number, cy: number) {
       const cols = ["#7fe7d6", "#6c8cff", "#ffce8a", "#ff9ecb"];
-      for (let i = 0; i < 22; i++) {
+      for (let i = 0; i < 26; i++) {
         const c = document.createElement("div");
-        c.style.cssText = `position:absolute;width:7px;height:7px;border-radius:2px;z-index:8;pointer-events:none;background:${cols[i % 4]};left:${mr.left - hr.left + 30}px;top:${mr.top - hr.top + 30}px;`;
-        hero.appendChild(c);
-        const a = Math.random() * 6.28, dist = 50 + Math.random() * 120, du = 600 + Math.random() * 500;
-        c.animate([{ transform: "translate(0,0)", opacity: 1 }, { transform: `translate(${Math.cos(a) * dist}px,${Math.sin(a) * dist + 70}px)`, opacity: 0 }], { duration: du, easing: "cubic-bezier(.2,.6,.3,1)" });
+        c.style.cssText = `position:fixed;width:8px;height:8px;border-radius:2px;z-index:30;pointer-events:none;background:${cols[i % 4]};left:${cx}px;top:${cy}px;`;
+        document.body.appendChild(c);
+        const a = Math.random() * 6.28, dist = 60 + Math.random() * 150, du = 700 + Math.random() * 600;
+        c.animate([{ transform: "translate(0,0)", opacity: 1 }, { transform: `translate(${Math.cos(a) * dist}px,${Math.sin(a) * dist + 90}px) rotate(${Math.random() * 540}deg)`, opacity: 0 }], { duration: du, easing: "cubic-bezier(.2,.6,.3,1)" });
         setTimeout(() => c.remove(), du);
       }
     }
 
-    // pointer
     ball.addEventListener("pointerdown", (e) => { e.preventDefault(); startCharge(e.clientX, e.clientY); });
-    window.addEventListener("pointermove", (e) => { if (charging && Math.hypot(e.clientX - sx, e.clientY - sy) > 26) dragged = true; });
-    window.addEventListener("pointerup", endCharge);
-    // keyboard
-    ball.addEventListener("keydown", (e) => { if ((e.key === " " || e.key === "Enter") && !busy) { e.preventDefault(); busy = true; pitch(); } });
-    // booking dismiss
+    window.addEventListener("pointermove", (e) => { if (charging) { lastX = e.clientX; lastY = e.clientY; } });
+    window.addEventListener("pointerup", release);
+    ball.addEventListener("keydown", (e) => { if ((e.key === " " || e.key === "Enter") && !busy && !charging) { e.preventDefault(); busy = true; fire("hit"); } });
     document.getElementById("bp-book-close")!.addEventListener("click", () => { book.classList.remove("show"); book.setAttribute("aria-hidden", "true"); });
   }
 </script>
