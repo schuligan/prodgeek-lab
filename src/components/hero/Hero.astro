@@ -4,7 +4,15 @@ import offer from "../../content/offer.json";
 const { hero, deal } = offer;
 ---
 
-<section class="hero" aria-labelledby="hero-heading">
+<section class="hero" aria-labelledby="hero-heading" data-tint="rgba(108,140,255,.5)">
+  <!-- PRO-14: ambient aurora drift + cursor-tracked spotlight (GPU-only) -->
+  <div class="aurora" aria-hidden="true">
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    <span class="blob b3"></span>
+  </div>
+  <div class="spotlight" id="hero-spotlight" aria-hidden="true"></div>
+
   <nav class="nav" aria-label="Main navigation">
     <span class="logo">{site.brand}</span>
     <ul class="navlinks">
@@ -18,7 +26,6 @@ const { hero, deal } = offer;
     <h1 id="hero-heading" class="h1">{hero.headline}</h1>
     <p class="sub" set:html={hero.sub} />
 
-    <!-- Ball CTA placeholder — replaced by the interactive Bullpen island in Phase 2 -->
     <div class="cta">
       <a class="ball-link" href={site.cta.href} aria-label={hero.ballLabel}>{hero.ballLabel}</a>
       <small class="hint">{hero.ballHint}</small>
@@ -46,14 +53,36 @@ const { hero, deal } = offer;
     background: radial-gradient(120% 90% at 78% 8%, #1b2440 0%, var(--color-bg) 58%);
     overflow: hidden;
   }
+
+  /* aurora */
+  .aurora { position: absolute; inset: 0; z-index: 0; }
+  .blob {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4;
+    will-change: transform;
+  }
+  .b1 { width: 38vw; height: 38vw; background: #2f4bc4; top: -12vw; right: -6vw; animation: drift-a 30s ease-in-out infinite; }
+  .b2 { width: 32vw; height: 32vw; background: #0b8f72; bottom: -14vw; left: -8vw; animation: drift-b 38s ease-in-out infinite; }
+  .b3 { width: 28vw; height: 28vw; background: #5a3fc0; top: 30%; left: 40%; opacity: 0.3; animation: drift-c 34s ease-in-out infinite; }
+  @keyframes drift-a { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-3vw, 4vw) scale(1.08); } }
+  @keyframes drift-b { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(4vw, -2.6vw) scale(1.06); } }
+  @keyframes drift-c { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-2.6vw, -3vw) scale(0.94); } }
+
+  /* cursor spotlight */
+  .spotlight {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(
+      460px 460px at var(--mx, 60%) var(--my, 30%),
+      rgba(127, 231, 214, 0.16), rgba(108, 140, 255, 0.09) 40%, transparent 72%
+    );
+    transition: background 0.12s linear;
+  }
+
+  .nav, .inner { position: relative; z-index: 3; }
+
   .nav {
-    position: absolute;
-    top: clamp(1.4rem, 4vw, 2.4rem);
-    left: clamp(1.5rem, 5vw, 4rem);
-    right: clamp(1.5rem, 5vw, 4rem);
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
+    position: absolute; top: clamp(1.4rem, 4vw, 2.4rem);
+    left: clamp(1.5rem, 5vw, 4rem); right: clamp(1.5rem, 5vw, 4rem);
+    display: flex; align-items: center; gap: 1.5rem;
   }
   .logo { font-weight: 700; letter-spacing: -0.01em; }
   .navlinks { display: flex; gap: 1.4rem; list-style: none; margin: 0 auto 0 1.5rem; padding: 0; }
@@ -64,10 +93,7 @@ const { hero, deal } = offer;
     border: 1px solid rgba(127, 231, 214, 0.35); padding: 0.5rem 0.9rem; border-radius: 999px;
   }
   .inner { max-width: 1100px; margin-inline: auto; width: 100%; }
-  .eyebrow {
-    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--color-mint); margin: 0 0 1rem;
-  }
+  .eyebrow { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-mint); margin: 0 0 1rem; }
   .h1 {
     font-size: var(--text-hero); line-height: 1.04; font-weight: 650;
     letter-spacing: -0.025em; margin: 0 0 1.2rem; max-width: 16ch; color: #fff;
@@ -84,13 +110,26 @@ const { hero, deal } = offer;
 
   .deal { display: grid; grid-template-columns: 1fr; gap: 0.9rem; list-style: none; margin: 0; padding: 0; max-width: 880px; }
   @media (min-width: 800px) { .deal { grid-template-columns: repeat(3, 1fr); } }
-  .step {
-    background: var(--color-surface); border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 14px; padding: 1.1rem 1rem;
-  }
+  .step { background: var(--color-surface); border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 14px; padding: 1.1rem 1rem; }
   .step .n { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; color: var(--color-mint); }
   .step h3 { margin: 0.45rem 0 0.35rem; font-size: 1rem; color: #fff; }
   .step p { margin: 0; font-size: 0.82rem; line-height: 1.5; color: var(--color-dim); }
 
   @media (max-width: 640px) { .navlinks { display: none; } .nav { gap: 0; justify-content: space-between; } }
+  @media (prefers-reduced-motion: reduce) {
+    .blob { animation: none; }
+    .spotlight { display: none; }
+  }
 </style>
+
+<script>
+  const hero = document.querySelector<HTMLElement>(".hero");
+  const spotlight = document.getElementById("hero-spotlight");
+  if (hero && spotlight && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    hero.addEventListener("pointermove", (e) => {
+      const r = hero.getBoundingClientRect();
+      spotlight.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+      spotlight.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
+    });
+  }
+</script>

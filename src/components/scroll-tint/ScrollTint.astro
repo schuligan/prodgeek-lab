@@ -1,0 +1,51 @@
+---
+// Scroll-tint (PRO-13): one fixed overlay whose colour morphs as each section
+// scrolls into view — "every section through a different coloured glass".
+// Each section declares its colour via a `data-tint` attribute; an
+// IntersectionObserver swaps a single CSS variable. GPU-only (background/opacity),
+// no scroll handler. Intensity is one tunable token (--tint-intensity).
+---
+
+<div id="scroll-tint" aria-hidden="true"></div>
+
+<style>
+  #scroll-tint {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: calc(var(--tint-intensity) * 0.9);
+    background: radial-gradient(
+      130% 75% at 50% 0%,
+      var(--tint, rgba(108, 140, 255, 0.5)) 0%,
+      transparent 62%
+    );
+    transition: background var(--dur-slow) var(--ease-out-expo);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #scroll-tint {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const overlay = document.getElementById("scroll-tint");
+  const sections = document.querySelectorAll<HTMLElement>("[data-tint]");
+
+  if (overlay && sections.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            const tint = (entry.target as HTMLElement).dataset.tint;
+            if (tint) overlay.style.setProperty("--tint", tint);
+          }
+        }
+      },
+      { threshold: [0.5] },
+    );
+    sections.forEach((section) => io.observe(section));
+  }
+</script>
