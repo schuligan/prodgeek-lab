@@ -7,7 +7,7 @@ import about from "../../content/about.json";
     <p class="label">About</p>
     <h2 id="about-heading">{about.heading}</h2>
     {about.paragraphs.map((p) => <p class="body">{p}</p>)}
-    <p class="aside">{about.aside}</p>
+    <a class="aside" href="https://www.youtube.com/@Beatoid" target="_blank" rel="noopener noreferrer">{about.aside}</a>
   </div>
 </section>
 
@@ -22,8 +22,9 @@ import about from "../../content/about.json";
   h2 { font-size: var(--text-h2); font-weight: 640; letter-spacing: -0.015em; margin: 0 0 1rem; max-width: 18ch; color: #fff; }
   .body { font-size: 1rem; line-height: 1.65; color: var(--color-dim); margin: 0 0 1rem; }
   .aside {
-    display: inline-block; margin-top: 0.6rem; font-size: 0.85rem; color: var(--color-ink);
+    display: inline-block; margin-top: 0.6rem; font-size: 0.85rem; color: var(--color-ink); text-decoration: none;
     background: var(--color-surface); border: 1px solid rgba(255, 255, 255, 0.09);
-    padding: 0.6rem 0.9rem; border-radius: 10px;
+    padding: 0.6rem 0.9rem; border-radius: 10px; transition: background 0.2s, border-color 0.2s, transform 0.15s;
   }
+  .aside:hover { background: #1a1d2a; border-color: rgba(127, 231, 214, 0.35); transform: translateY(-1px); }
 </style>

@@ -88,7 +88,7 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   .fb { position: fixed; right: 7%; top: 14%; z-index: 31; text-align: center; opacity: 0; pointer-events: none; }
   .fb.show { animation: bp-fb 1.3s cubic-bezier(.16,1,.3,1); }
   @keyframes bp-fb { 0% { opacity: 0; transform: translateY(10px) scale(.8); } 20% { opacity: 1; transform: none; } 78% { opacity: 1; } 100% { opacity: 0; } }
-  .fb-big { font-size: clamp(1.5rem, 3.5vw, 2.2rem); font-weight: 750; color: var(--color-amber); text-shadow: 0 2px 18px rgba(0,0,0,.5); }
+  .fb-big { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; background: linear-gradient(90deg, var(--color-mint), var(--color-indigo)); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 22px rgba(127, 231, 214, 0.45)); }
 
   .roar { position: fixed; inset: 0; z-index: 29; background: radial-gradient(55% 45% at 88% 9%, rgba(255,245,210,.5), transparent 60%); opacity: 0; pointer-events: none; }
   .roar.go { animation: bp-roar .6s ease; }
@@ -158,18 +158,19 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
       g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + delay + 0.7);
       src.connect(bp); bp.connect(g); g.connect(a.destination); src.start(a.currentTime + delay); src.stop(a.currentTime + delay + 0.7);
     }
-    function bell(t: number, freq: number, vol: number) {
+    function fanfare() {
       const a = actx();
-      ([[1, 1], [2.0, 0.4], [3.01, 0.2]] as [number, number][]).forEach(([m, v]) => {
-        const o = a.createOscillator(), g = a.createGain();
-        o.type = "sine"; o.frequency.value = freq * m;
+      const seq: [number, number, number][] = [[392, 0, 0.12], [392, 0.12, 0.12], [523, 0.24, 0.12], [659, 0.36, 0.12], [784, 0.48, 0.12], [784, 0.62, 0.42]];
+      seq.forEach(([hz, t, dur]) => {
+        const o = a.createOscillator(), g = a.createGain(), lp = a.createBiquadFilter();
+        o.type = "sawtooth"; o.frequency.value = hz; lp.type = "lowpass"; lp.frequency.value = 2400;
         g.gain.setValueAtTime(0.0001, a.currentTime + t);
-        g.gain.exponentialRampToValueAtTime(vol * v, a.currentTime + t + 0.005);
-        g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + t + 0.6);
-        o.connect(g); g.connect(a.destination); o.start(a.currentTime + t); o.stop(a.currentTime + t + 0.65);
+        g.gain.exponentialRampToValueAtTime(0.24, a.currentTime + t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + t + dur);
+        o.connect(lp); lp.connect(g); g.connect(a.destination); o.start(a.currentTime + t); o.stop(a.currentTime + t + dur + 0.05);
       });
     }
-    function hitSound() { if (muted) return; try { bell(0, 784, 0.34); bell(0.26, 784, 0.3); bell(0.52, 880, 0.34); cheer(0.52); } catch (_) {} }
+    function hitSound() { if (muted) return; try { fanfare(); cheer(0.55); } catch (_) {} }
     function missSound() {
       if (muted) return;
       try {

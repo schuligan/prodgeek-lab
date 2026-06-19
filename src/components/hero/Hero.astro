@@ -11,8 +11,6 @@ const { hero, deal } = offer;
     <span class="blob b2"></span>
     <span class="blob b3"></span>
   </div>
-  <div class="spotlight" id="hero-spotlight" aria-hidden="true"></div>
-
   <nav class="nav" aria-label="Main navigation">
     <span class="logo">{site.brand}</span>
     <ul class="navlinks">
@@ -72,15 +70,6 @@ const { hero, deal } = offer;
   @keyframes drift-b { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(4vw, -2.6vw) scale(1.06); } }
   @keyframes drift-c { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-2.6vw, -3vw) scale(0.94); } }
 
-  /* cursor spotlight — static glow moved via transform (smooth in Safari) */
-  .spotlight {
-    position: absolute; top: 0; left: 0; width: 680px; height: 680px; margin: -340px 0 0 -340px;
-    z-index: 2; pointer-events: none; mix-blend-mode: screen; opacity: 0;
-    background: radial-gradient(circle, rgba(127, 231, 214, 0.32), rgba(108, 140, 255, 0.17) 42%, transparent 70%);
-    transition: opacity 0.3s; will-change: transform;
-  }
-  .spotlight.on { opacity: 1; }
-
   .nav, .inner { position: relative; z-index: 3; }
   .nav {
     position: absolute; top: clamp(1.4rem, 4vw, 2.4rem);
@@ -125,24 +114,3 @@ const { hero, deal } = offer;
   @media (prefers-reduced-motion: reduce) { .blob { animation: none; } .spotlight { display: none; } }
 </style>
 
-<script>
-  const hero = document.querySelector<HTMLElement>(".hero");
-  const spot = document.getElementById("hero-spotlight");
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (hero && spot && !reduce) {
-    let tx = 0, ty = 0, cx = 0, cy = 0, running = false;
-    const loop = () => {
-      cx += (tx - cx) * 0.16;
-      cy += (ty - cy) * 0.16;
-      spot.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
-      if (running) requestAnimationFrame(loop);
-    };
-    hero.addEventListener("pointermove", (e) => {
-      const r = hero.getBoundingClientRect();
-      tx = e.clientX - r.left;
-      ty = e.clientY - r.top;
-      if (!running) { running = true; spot.classList.add("on"); cx = tx; cy = ty; loop(); }
-    });
-    hero.addEventListener("pointerleave", () => { running = false; spot.classList.remove("on"); });
-  }
-</script>

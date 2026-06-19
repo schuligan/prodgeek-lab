@@ -1,0 +1,38 @@
+---
+// Global cursor glow — a soft mint/indigo light that follows the cursor across the
+// whole page (the "color diffusion"). GPU-only (translate3d) + smoothing lerp, so it
+// stays buttery in Safari. Fine-pointer + non-reduced-motion only.
+---
+
+<div id="cursor-glow" aria-hidden="true"></div>
+
+<style>
+  #cursor-glow {
+    position: fixed; top: 0; left: 0; width: 520px; height: 520px; margin: -260px 0 0 -260px;
+    z-index: 4; pointer-events: none; mix-blend-mode: screen; opacity: 0;
+    background: radial-gradient(circle, rgba(127, 231, 214, 0.20), rgba(108, 140, 255, 0.11) 45%, transparent 70%);
+    transition: opacity 0.4s; will-change: transform;
+  }
+  #cursor-glow.on { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { #cursor-glow { display: none; } }
+</style>
+
+<script>
+  const g = document.getElementById("cursor-glow");
+  const fine = window.matchMedia("(pointer: fine)").matches;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (g && fine && !reduce) {
+    let tx = 0, ty = 0, cx = 0, cy = 0, run = false;
+    const loop = () => {
+      cx += (tx - cx) * 0.18;
+      cy += (ty - cy) * 0.18;
+      g.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
+      if (run) requestAnimationFrame(loop);
+    };
+    window.addEventListener("pointermove", (e) => {
+      tx = e.clientX; ty = e.clientY;
+      if (!run) { run = true; g.classList.add("on"); cx = tx; cy = ty; loop(); }
+    });
+    document.addEventListener("mouseleave", () => { run = false; g.classList.remove("on"); });
+  }
+</script>
