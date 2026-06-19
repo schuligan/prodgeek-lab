@@ -44,7 +44,7 @@ baseball you grip & pitch (The Bullpen game) → booking.
 - Motion: compositor-friendly props only; always ship a `prefers-reduced-motion` branch.
 
 ## Key facts
-- Repo: github.com/schuligan/prodgeek-lab (public, `main`). Stack: Astro 5 + React islands + Tailwind v4. Deploy: **Vercel**.
+- Repo: github.com/schuligan/prodgeek-lab (public, `main`). Stack: Astro 5 + Tailwind v4 (no React — zero islands today; all interactivity is vanilla Astro inline scripts. Re-add `@astrojs/react` when the v2 leaderboard PRO-27/28 needs an island). Deploy: **Vercel**.
 - Tooling available: Vercel, Supabase (v2 game leaderboard only), Git/gh (schuligan). **Stripe: not used.**
 - Modular architecture: section blocks under `src/components/<feature>/`; the game isolated in `src/modules/bullpen/`; motion helpers in `src/components/motion/` (Reveal, SmoothScroll/Lenis) + `cursor-glow/` + `scroll-tint/`; tokens in `src/styles/global.css`; editable copy in `src/content/*.json`.
 - **LIVE: https://prodgeek-lab.vercel.app** — Vercel Git integration, auto-deploys every push to `main`.
