@@ -1,7 +1,7 @@
 ---
-// The Bullpen (PRO-21→26, redesign PRO-31): grip the ball, charge, flick it up-right
-// in a 3D arc to the "Pitch me" target (the nav button). Full charge + aimed = hit →
-// stadium riff + cheers → booking. Under-charged = falls short. Isolated module.
+// The Bullpen (PRO-31): grip the ball, charge (ring fills), an aim line shows your
+// angle; flick toward the ballpark target and release. Decent charge + aimed = a 3D
+// arc that lands on the park → riff + cheers → booking. Weak charge = falls short.
 import site from "../../content/site.json";
 
 const hasBooking =
@@ -13,18 +13,29 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   <div class="cta-row">
     <div class="ballwrap" id="bp-wrap">
       <svg class="ring" viewBox="0 0 76 76" aria-hidden="true">
-        <circle class="ring-bg" cx="38" cy="38" r="34" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3"></circle>
+        <circle cx="38" cy="38" r="34" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3"></circle>
         <circle id="bp-prog" cx="38" cy="38" r="34" fill="none" stroke="var(--color-mint)" stroke-width="3" stroke-linecap="round" stroke-dasharray="214" stroke-dashoffset="214" transform="rotate(-90 38 38)"></circle>
       </svg>
-      <svg id="bp-ball" viewBox="0 0 100 100" role="button" tabindex="0" aria-label="Pitch the ball to book a free chat">
-        <circle cx="50" cy="50" r="46" fill="#fdfdfb" stroke="#e2e0da" stroke-width="1.5"></circle>
-        <path d="M26 16 C 40 34, 40 66, 26 84" fill="none" stroke="#d6402f" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="3 5"></path>
-        <path d="M74 16 C 60 34, 60 66, 74 84" fill="none" stroke="#d6402f" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="3 5"></path>
-      </svg>
+      <div class="aim" id="bp-aim" aria-hidden="true"></div>
+      <button id="bp-ball" class="ball-btn" type="button" aria-label="Pitch the ball to book a free chat">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <radialGradient id="bp-sphere" cx="38%" cy="30%" r="75%">
+              <stop offset="0%" stop-color="#ffffff"></stop>
+              <stop offset="55%" stop-color="#f1efe8"></stop>
+              <stop offset="100%" stop-color="#c9c6bb"></stop>
+            </radialGradient>
+          </defs>
+          <circle cx="50" cy="50" r="46" fill="url(#bp-sphere)" stroke="#b9b5a9" stroke-width="1"></circle>
+          <path d="M28 14 C 43 32, 43 68, 28 86" fill="none" stroke="#d6402f" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="3 5"></path>
+          <path d="M72 14 C 57 32, 57 68, 72 86" fill="none" stroke="#d6402f" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="3 5"></path>
+          <ellipse cx="37" cy="31" rx="15" ry="9" fill="#ffffff" opacity="0.45"></ellipse>
+        </svg>
+      </button>
     </div>
     <div class="label">
       Pitch it. For real.
-      <small id="bp-hint">hold to power up, flick toward "Pitch me" →</small>
+      <small id="bp-hint">hold to power up, aim at the ballpark →</small>
     </div>
     <button class="mute" id="bp-mute" type="button" aria-label="Mute crowd sound">🔊</button>
   </div>
@@ -44,16 +55,27 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   .bullpen { position: relative; }
   .cta-row { display: flex; align-items: center; gap: 1rem; }
   .ballwrap { position: relative; width: 64px; height: 64px; flex: none; }
-  .ring { position: absolute; inset: -6px; width: 76px; height: 76px; pointer-events: none; }
-  #bp-ball {
-    position: absolute; inset: 0; width: 64px; height: 64px; cursor: grab;
-    filter: drop-shadow(0 6px 14px rgba(0,0,0,.5)); will-change: transform; z-index: 4;
+  .ring { position: absolute; inset: -6px; width: 76px; height: 76px; pointer-events: none; z-index: 1; }
+
+  .ball-btn {
+    position: absolute; inset: 0; width: 64px; height: 64px; padding: 0; border: 0; background: none;
+    -webkit-appearance: none; appearance: none; cursor: grab; z-index: 4; border-radius: 50%;
     outline: none; -webkit-tap-highlight-color: transparent; touch-action: none;
+    filter: drop-shadow(0 7px 16px rgba(0,0,0,.55));
   }
-  #bp-ball.grab { cursor: grabbing; }
-  #bp-ball.flying { z-index: 30; }
-  /* round focus indicator (kills Safari's square focus box) */
-  #bp-wrap:focus-within .ring-bg { stroke: var(--color-mint); }
+  .ball-btn svg { display: block; width: 100%; height: 100%; }
+  .ball-btn:active { cursor: grabbing; }
+  .ball-btn.flying { z-index: 30; }
+  .ball-btn:focus-visible { box-shadow: 0 0 0 3px var(--color-mint); border-radius: 50%; }
+
+  .aim {
+    position: absolute; left: 32px; top: 31px; height: 3px; width: 0; border-radius: 3px; z-index: 5;
+    background: linear-gradient(90deg, var(--color-mint), rgba(127,231,214,0));
+    transform-origin: 0 50%; opacity: 0; pointer-events: none; transition: opacity 0.12s;
+  }
+  .aim.on { opacity: 0.9; }
+  .aim::after { content: ""; position: absolute; right: 0; top: 50%; width: 7px; height: 7px; border-top: 2px solid var(--color-mint); border-right: 2px solid var(--color-mint); transform: translate(1px, -50%) rotate(45deg); }
+
   .label { font-size: 0.95rem; font-weight: 600; color: #fff; }
   .label small { display: block; font-weight: 400; font-size: 0.72rem; color: var(--color-dim); margin-top: 1px; }
   .mute { margin-left: auto; background: none; border: 0; font-size: 0.95rem; cursor: pointer; opacity: 0.6; }
@@ -66,7 +88,7 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   @keyframes bp-fb { 0% { opacity: 0; transform: translateY(10px) scale(.8); } 20% { opacity: 1; transform: none; } 78% { opacity: 1; } 100% { opacity: 0; } }
   .fb-big { font-size: clamp(1.5rem, 3.5vw, 2.2rem); font-weight: 750; color: var(--color-amber); text-shadow: 0 2px 18px rgba(0,0,0,.5); }
 
-  .roar { position: fixed; inset: 0; z-index: 29; background: radial-gradient(60% 50% at 85% 10%, rgba(255,245,210,.5), transparent 60%); opacity: 0; pointer-events: none; }
+  .roar { position: fixed; inset: 0; z-index: 29; background: radial-gradient(55% 45% at 88% 9%, rgba(255,245,210,.5), transparent 60%); opacity: 0; pointer-events: none; }
   .roar.go { animation: bp-roar .6s ease; }
   @keyframes bp-roar { 0% { opacity: 0; } 25% { opacity: 1; } 100% { opacity: 0; } }
 
@@ -83,7 +105,7 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   .book-close { display: block; margin-top: .7rem; background: none; border: 0; color: var(--color-faint); font-size: .75rem; cursor: pointer; }
 
   @media (prefers-reduced-motion: reduce) {
-    #bp-ball, .book { transition: none; }
+    .ball-btn, .book { transition: none; }
     .fb.show, .roar.go { animation: none; }
   }
 </style>
@@ -95,6 +117,7 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   if (root && hero && target) {
     const ball = document.getElementById("bp-ball")!;
     const prog = document.getElementById("bp-prog") as unknown as SVGCircleElement;
+    const aim = document.getElementById("bp-aim")!;
     const hint = document.getElementById("bp-hint")!;
     const fb = document.getElementById("bp-fb")!;
     const fbBig = document.getElementById("bp-fb-big")!;
@@ -105,18 +128,18 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
     const hasBooking = root.dataset.hasBooking === "true";
     const bookingUrl = root.dataset.bookingUrl || "#";
 
-    const DASH = 214, CHARGE = 1100, HIT_POWER = 0.8;
-    let charging = false, t0 = 0, lastX = 0, lastY = 0, startY = 0, busy = false, raf = 0;
+    const DASH = 214, CHARGE = 750, HIT_POWER = 0.55, CONE = 64;
+    let charging = false, t0 = 0, sx = 0, sy = 0, lx = 0, ly = 0, busy = false, raf = 0;
 
-    // ---- sound: stadium "tan-tan-tan" riff + cheer (synthesised) ----
+    // ---- sound: "tan-tan-tan" rising riff + cheer ----
     let muted = localStorage.getItem("bp_muted") === "1";
     let ac: AudioContext | null = null;
     const setMute = () => { muteBtn.textContent = muted ? "🔇" : "🔊"; };
     setMute();
     muteBtn.addEventListener("click", () => { muted = !muted; localStorage.setItem("bp_muted", muted ? "1" : "0"); setMute(); });
-    function ctx() { if (!ac) ac = new (window.AudioContext || (window as any).webkitAudioContext)(); return ac!; }
+    function actx() { if (!ac) ac = new (window.AudioContext || (window as any).webkitAudioContext)(); return ac!; }
     function note(freq: number, t: number, dur: number, vol: number) {
-      const a = ctx(), o = a.createOscillator(), g = a.createGain();
+      const a = actx(), o = a.createOscillator(), g = a.createGain();
       o.type = "triangle"; o.frequency.value = freq;
       g.gain.setValueAtTime(0.0001, a.currentTime + t);
       g.gain.exponentialRampToValueAtTime(vol, a.currentTime + t + 0.02);
@@ -124,94 +147,99 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
       o.connect(g); g.connect(a.destination); o.start(a.currentTime + t); o.stop(a.currentTime + t + dur + 0.05);
     }
     function cheer(delay: number) {
-      const a = ctx(), len = Math.floor(a.sampleRate * 0.7), buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
-      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1);
+      const a = actx(), len = Math.floor(a.sampleRate * 0.7), buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
       const src = a.createBufferSource(); src.buffer = buf;
       const bp = a.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1100; bp.Q.value = 0.7;
       const g = a.createGain(); g.gain.setValueAtTime(0.0001, a.currentTime + delay);
-      g.gain.linearRampToValueAtTime(0.32, a.currentTime + delay + 0.25);
+      g.gain.linearRampToValueAtTime(0.3, a.currentTime + delay + 0.25);
       g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + delay + 0.7);
       src.connect(bp); bp.connect(g); g.connect(a.destination); src.start(a.currentTime + delay); src.stop(a.currentTime + delay + 0.7);
     }
-    function hitSound() {
-      if (muted) return;
-      try { const f = [392, 523, 659, 784]; f.forEach((hz, i) => note(hz, i * 0.09, 0.14, 0.35)); note(1046, 0.4, 0.25, 0.4); cheer(0.42); } catch (_) {}
-    }
-    function missSound() { if (muted) return; try { note(300, 0, 0.18, 0.25); note(180, 0.12, 0.22, 0.2); } catch (_) {} }
+    function hitSound() { if (muted) return; try { [392, 523, 659, 784].forEach((hz, i) => note(hz, i * 0.09, 0.14, 0.34)); note(1046, 0.4, 0.25, 0.4); cheer(0.42); } catch (_) {} }
+    function missSound() { if (muted) return; try { note(300, 0, 0.18, 0.22); note(180, 0.12, 0.22, 0.18); } catch (_) {} }
 
     const ELITE = ["PUNCHOUT! 🔥", "FILTHY.", "Pure cheddar 🧀", "That's an aspirin.", "Bringing the GAS."];
     const GOOD = ["Nasty heat.", "Painted the corner.", "Sick slider."];
-    const SHORT = ["In the dirt — builders don't quit.", "Short. Power up — hold longer.", "Bounced it. Reload."];
-    const WIDE = ["Sailed it. Aim for the stands.", "Yanked it wide. Re-fire."];
+    const SHORT = ["In the dirt — builders don't quit.", "Short. Hold longer to power up.", "Bounced it. Reload."];
+    const WIDE = ["Sailed it. Aim at the ballpark.", "Yanked it wide. Re-fire."];
     const pick = (a: string[]) => a[Math.floor(Math.random() * a.length)];
+    const say = (t: string) => { fbBig.textContent = t; fb.classList.remove("show"); void fb.offsetWidth; fb.classList.add("show"); };
 
-    function say(t: string) { fbBig.textContent = t; fb.classList.remove("show"); void fb.offsetWidth; fb.classList.add("show"); }
-    function reset() { ball.style.transform = ""; ball.classList.remove("flying"); prog.style.strokeDashoffset = String(DASH); busy = false; hint.textContent = "again? hold &amp; flick toward \"Pitch me\" →"; }
+    function center(el: HTMLElement) { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+    function reset() { ball.style.transform = ""; ball.classList.remove("flying"); prog.style.strokeDashoffset = String(DASH); aim.classList.remove("on"); aim.style.width = "0px"; busy = false; hint.textContent = "again? hold &amp; aim at the ballpark →"; }
 
     function startCharge(x: number, y: number) {
       if (busy) return;
-      charging = true; t0 = Date.now(); lastX = x; lastY = y; startY = y; ball.classList.add("grab");
+      charging = true; t0 = Date.now(); sx = x; sy = y; lx = x; ly = y; ball.style.cursor = "grabbing";
+      aim.classList.add("on");
       const tick = () => {
         if (!charging) return;
         const p = Math.min(1, (Date.now() - t0) / CHARGE);
         prog.style.strokeDashoffset = String(DASH * (1 - p));
         ball.style.transform = `scale(${1 + p * 0.12})`;
+        aim.style.width = `${46 + p * 70}px`;
         raf = requestAnimationFrame(tick);
       };
       tick();
     }
+    function aimAt(x: number, y: number) {
+      lx = x; ly = y;
+      const c = center(ball);
+      const ang = Math.atan2(y - c.y, x - c.x) * 180 / Math.PI;
+      aim.style.transform = `rotate(${ang}deg)`;
+    }
     function release() {
       if (!charging || busy) return;
-      charging = false; cancelAnimationFrame(raf); ball.classList.remove("grab");
+      charging = false; cancelAnimationFrame(raf); ball.style.cursor = "grab";
       const power = Math.min(1, (Date.now() - t0) / CHARGE);
-      const aimedWrong = lastY > startY + 50; // actively dragged downward = bad aim
+      const moved = Math.hypot(lx - sx, ly - sy) > 10;
+      const b = center(ball), t = center(target!);
+      let angle = 0;
+      if (moved) {
+        const ax = lx - b.x, ay = ly - b.y, tx = t.x - b.x, ty = t.y - b.y;
+        const mag = Math.hypot(ax, ay) * Math.hypot(tx, ty);
+        angle = mag > 0 ? Math.acos(Math.max(-1, Math.min(1, (ax * tx + ay * ty) / mag))) * 180 / Math.PI : 0;
+      }
       prog.style.strokeDashoffset = String(DASH);
       ball.style.transform = "";
-      if (power < 0.45) { busy = true; fire("short"); }
-      else if (aimedWrong) { busy = true; fire("wide"); }
-      else if (power >= HIT_POWER) { busy = true; fire("hit"); }
-      else { busy = true; fire("short"); }
+      busy = true;
+      if (power < HIT_POWER) fire("short");
+      else if (angle <= CONE) fire("hit");
+      else fire("wide");
     }
 
     function fire(kind: "hit" | "short" | "wide") {
       ball.classList.add("flying");
-      const br = ball.getBoundingClientRect();
-      const tr = target.getBoundingClientRect();
-      const homeX = br.left + br.width / 2, homeY = br.top + br.height / 2;
-      let endX: number, endY: number, lift: number;
-      if (kind === "hit") { endX = tr.left + tr.width / 2 - homeX; endY = tr.top + tr.height / 2 - homeY; lift = Math.hypot(endX, endY) * 0.32; }
-      else if (kind === "short") { endX = (tr.left + tr.width / 2 - homeX) * 0.45; endY = 150; lift = 220; }
-      else { endX = (tr.left - homeX) * 0.5; endY = 120; lift = 240; }
-      if (reduce) { return endFire(kind, tr, homeX, homeY); }
-      const dur = kind === "hit" ? 680 : 560; let start = 0;
+      const b = center(ball), t = center(target!);
+      let ex: number, ey: number, lift: number;
+      if (kind === "hit") { ex = t.x - b.x; ey = t.y - b.y; lift = Math.hypot(ex, ey) * 0.34; }
+      else if (kind === "short") { ex = (t.x - b.x) * 0.5; ey = 150; lift = 230; }
+      else { ex = (t.x - b.x) * 0.55; ey = 130; lift = 250; }
+      if (reduce) return done(kind, t);
+      const dur = kind === "hit" ? 700 : 560; let st = 0;
       const step = (ts: number) => {
-        if (!start) start = ts;
-        const p = Math.min(1, (ts - start) / dur);
-        const x = endX * p;
-        const y = endY * p - Math.sin(p * Math.PI) * lift;
-        const s = 1 + Math.sin(p * Math.PI) * 0.3; // depth
+        if (!st) st = ts;
+        const p = Math.min(1, (ts - st) / dur);
+        const x = ex * p, y = ey * p - Math.sin(p * Math.PI) * lift, s = 1 + Math.sin(p * Math.PI) * 0.32;
         ball.style.transform = `translate(${x}px,${y}px) scale(${s}) rotate(${p * 760}deg)`;
-        if (p < 1) requestAnimationFrame(step); else endFire(kind, tr, homeX, homeY);
+        if (p < 1) requestAnimationFrame(step); else done(kind, t);
       };
       requestAnimationFrame(step);
     }
 
-    function endFire(kind: string, tr: DOMRect, homeX: number, homeY: number) {
+    function done(kind: string, t: { x: number; y: number }) {
       if (kind === "hit") {
-        target.classList.add("hit"); setTimeout(() => target.classList.remove("hit"), 700);
-        if (!reduce) { roar.classList.remove("go"); void roar.offsetWidth; roar.classList.add("go"); confetti(tr.left + tr.width / 2, tr.top + tr.height / 2); }
+        target!.classList.add("hit"); setTimeout(() => target!.classList.remove("hit"), 700);
+        if (!reduce) { roar.classList.remove("go"); void roar.offsetWidth; roar.classList.add("go"); confetti(t.x, t.y); }
         hitSound();
         say(Math.random() < 0.5 ? pick(ELITE) : pick(GOOD));
         setTimeout(() => {
-          if (hasBooking) { window.open(bookingUrl, "_blank", "noopener"); }
+          if (hasBooking) window.open(bookingUrl, "_blank", "noopener");
           else { book.classList.add("show"); book.setAttribute("aria-hidden", "false"); }
           reset();
         }, 700);
-      } else {
-        missSound();
-        say(kind === "short" ? pick(SHORT) : pick(WIDE));
-        setTimeout(reset, 500);
-      }
+      } else { missSound(); say(kind === "short" ? pick(SHORT) : pick(WIDE)); setTimeout(reset, 500); }
     }
 
     function confetti(cx: number, cy: number) {
@@ -227,7 +255,7 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
     }
 
     ball.addEventListener("pointerdown", (e) => { e.preventDefault(); startCharge(e.clientX, e.clientY); });
-    window.addEventListener("pointermove", (e) => { if (charging) { lastX = e.clientX; lastY = e.clientY; } });
+    window.addEventListener("pointermove", (e) => { if (charging) aimAt(e.clientX, e.clientY); });
     window.addEventListener("pointerup", release);
     ball.addEventListener("keydown", (e) => { if ((e.key === " " || e.key === "Enter") && !busy && !charging) { e.preventDefault(); busy = true; fire("hit"); } });
     document.getElementById("bp-book-close")!.addEventListener("click", () => { book.classList.remove("show"); book.setAttribute("aria-hidden", "true"); });
