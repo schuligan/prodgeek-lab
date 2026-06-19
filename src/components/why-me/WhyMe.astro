@@ -50,7 +50,8 @@ const { whyMe } = offer;
 
   .pillars { display: grid; grid-template-columns: 1fr; gap: 1rem; list-style: none; margin: 0 0 2rem; padding: 0; }
   @media (min-width: 820px) { .pillars { grid-template-columns: repeat(3, 1fr); } }
-  .pillar { background: var(--color-surface); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.2rem 1.1rem; }
+  .pillar { background: var(--color-surface); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.2rem 1.1rem; transition: transform 0.25s var(--ease-out-expo), border-color 0.25s, box-shadow 0.25s; }
+  .pillar:hover { transform: translateY(-4px); border-color: rgba(94, 234, 212, 0.4); box-shadow: 0 14px 32px rgba(0, 0, 0, 0.32); }
   .pillar:last-child { border-color: rgba(94, 234, 212, 0.4); }
   .plabel { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-mint); }
   .pillar h3 { margin: 0.5rem 0 0.4rem; font-size: 1.05rem; color: #fff; }
@@ -61,7 +62,8 @@ const { whyMe } = offer;
   .bench-h { font-size: 1.1rem; color: #fff; margin: 0 0 1rem; }
   .bench ul { display: grid; grid-template-columns: 1fr; gap: 0.9rem; list-style: none; margin: 0; padding: 0; }
   @media (min-width: 820px) { .bench ul { grid-template-columns: repeat(3, 1fr); } }
-  .bench li { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem; }
+  .bench li { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem; transition: transform 0.25s var(--ease-out-expo), border-color 0.25s; }
+  .bench li:hover { transform: translateY(-3px); border-color: rgba(94, 234, 212, 0.3); }
   .bench h4 { margin: 0 0 0.3rem; font-size: 0.9rem; color: #fff; }
   .bench li p { margin: 0; font-size: 0.78rem; line-height: 1.45; color: var(--color-dim); }
 

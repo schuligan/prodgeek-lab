@@ -66,6 +66,8 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   .ball-btn svg { display: block; width: 100%; height: 100%; }
   .ball-btn:active { cursor: grabbing; }
   .ball-btn.flying { z-index: 30; }
+  .ball-btn:focus { outline: none; }
+  .ball-btn:focus:not(:focus-visible) { box-shadow: none; }
   .ball-btn:focus-visible { box-shadow: 0 0 0 3px var(--color-mint); border-radius: 50%; }
 
   .aim {
@@ -137,7 +139,7 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
     const setMute = () => { muteBtn.textContent = muted ? "🔇" : "🔊"; };
     setMute();
     muteBtn.addEventListener("click", () => { muted = !muted; localStorage.setItem("bp_muted", muted ? "1" : "0"); setMute(); });
-    function actx() { if (!ac) ac = new (window.AudioContext || (window as any).webkitAudioContext)(); return ac!; }
+    function actx() { if (!ac) ac = new (window.AudioContext || (window as any).webkitAudioContext)(); if (ac.state === "suspended") ac.resume(); return ac!; }
     function note(freq: number, t: number, dur: number, vol: number) {
       const a = actx(), o = a.createOscillator(), g = a.createGain();
       o.type = "triangle"; o.frequency.value = freq;
@@ -156,8 +158,28 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
       g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + delay + 0.7);
       src.connect(bp); bp.connect(g); g.connect(a.destination); src.start(a.currentTime + delay); src.stop(a.currentTime + delay + 0.7);
     }
-    function hitSound() { if (muted) return; try { [392, 523, 659, 784].forEach((hz, i) => note(hz, i * 0.09, 0.14, 0.34)); note(1046, 0.4, 0.25, 0.4); cheer(0.42); } catch (_) {} }
-    function missSound() { if (muted) return; try { note(300, 0, 0.18, 0.22); note(180, 0.12, 0.22, 0.18); } catch (_) {} }
+    function bell(t: number, freq: number, vol: number) {
+      const a = actx();
+      ([[1, 1], [2.0, 0.4], [3.01, 0.2]] as [number, number][]).forEach(([m, v]) => {
+        const o = a.createOscillator(), g = a.createGain();
+        o.type = "sine"; o.frequency.value = freq * m;
+        g.gain.setValueAtTime(0.0001, a.currentTime + t);
+        g.gain.exponentialRampToValueAtTime(vol * v, a.currentTime + t + 0.005);
+        g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + t + 0.6);
+        o.connect(g); g.connect(a.destination); o.start(a.currentTime + t); o.stop(a.currentTime + t + 0.65);
+      });
+    }
+    function hitSound() { if (muted) return; try { bell(0, 784, 0.34); bell(0.26, 784, 0.3); bell(0.52, 880, 0.34); cheer(0.52); } catch (_) {} }
+    function missSound() {
+      if (muted) return;
+      try {
+        const a = actx(), o = a.createOscillator(), g = a.createGain(), lp = a.createBiquadFilter();
+        o.type = "sawtooth"; o.frequency.setValueAtTime(360, a.currentTime); o.frequency.exponentialRampToValueAtTime(150, a.currentTime + 0.5);
+        lp.type = "lowpass"; lp.frequency.value = 850;
+        g.gain.setValueAtTime(0.0001, a.currentTime); g.gain.exponentialRampToValueAtTime(0.18, a.currentTime + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + 0.55);
+        o.connect(lp); lp.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + 0.6);
+      } catch (_) {}
+    }
 
     const ELITE = ["PUNCHOUT! 🔥", "FILTHY.", "Pure cheddar 🧀", "That's an aspirin.", "Bringing the GAS."];
     const GOOD = ["Nasty heat.", "Painted the corner.", "Sick slider."];
@@ -167,11 +189,11 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
     const say = (t: string) => { fbBig.textContent = t; fb.classList.remove("show"); void fb.offsetWidth; fb.classList.add("show"); };
 
     function center(el: HTMLElement) { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
-    function reset() { ball.style.transform = ""; ball.classList.remove("flying"); prog.style.strokeDashoffset = String(DASH); aim.classList.remove("on"); aim.style.width = "0px"; busy = false; hint.textContent = "again? hold &amp; aim at the ballpark →"; }
+    function reset() { ball.style.transform = ""; ball.classList.remove("flying"); ball.blur(); prog.style.strokeDashoffset = String(DASH); aim.classList.remove("on"); aim.style.width = "0px"; busy = false; hint.textContent = "again? hold & aim at the ballpark →"; }
 
     function startCharge(x: number, y: number) {
       if (busy) return;
-      charging = true; t0 = Date.now(); sx = x; sy = y; lx = x; ly = y; ball.style.cursor = "grabbing";
+      charging = true; t0 = Date.now(); sx = x; sy = y; lx = x; ly = y; ball.style.cursor = "grabbing"; try { actx(); } catch (_) {}
       aim.classList.add("on");
       const tick = () => {
         if (!charging) return;
@@ -239,7 +261,7 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
           else { book.classList.add("show"); book.setAttribute("aria-hidden", "false"); }
           reset();
         }, 700);
-      } else { missSound(); say(kind === "short" ? pick(SHORT) : pick(WIDE)); setTimeout(reset, 500); }
+      } else { missSound(); hint.textContent = kind === "short" ? pick(SHORT) : pick(WIDE); setTimeout(reset, 1100); }
     }
 
     function confetti(cx: number, cy: number) {
