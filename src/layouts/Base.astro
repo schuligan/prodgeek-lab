@@ -2,6 +2,8 @@
 import "../styles/global.css";
 import ScrollTint from "../components/scroll-tint/ScrollTint.astro";
 import CursorGlow from "../components/cursor-glow/CursorGlow.astro";
+import Reveal from "../components/motion/Reveal.astro";
+import SmoothScroll from "../components/motion/SmoothScroll.astro";
 
 interface Props {
   title?: string;
@@ -40,5 +42,7 @@ const {
     <ScrollTint />
     <CursorGlow />
     <slot />
+    <Reveal />
+    <SmoothScroll />
   </body>
 </html>

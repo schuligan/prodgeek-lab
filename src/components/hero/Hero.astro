@@ -34,7 +34,7 @@ const { hero, deal } = offer;
 
   <div class="inner">
     <p class="eyebrow">{hero.eyebrow}</p>
-    <h1 id="hero-heading" class="h1">{hero.headline}</h1>
+    <h1 id="hero-heading" class="h1">{hero.headline.split(" ").map((w, i) => <span class="word" style={`animation-delay:${0.05 + i * 0.07}s`}>{w}</span>)}</h1>
     <p class="sub" set:html={hero.sub} />
 
     <div class="cta">
@@ -99,6 +99,9 @@ const { hero, deal } = offer;
   .inner { max-width: 1100px; margin-inline: auto; width: 100%; }
   .eyebrow { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-mint); margin: 0 0 1rem; }
   .h1 { font-size: var(--text-hero); line-height: 1.04; font-weight: 650; letter-spacing: -0.025em; margin: 0 0 1.2rem; max-width: 16ch; color: #fff; }
+  .word { display: inline-block; margin-right: 0.25em; opacity: 0; transform: translateY(22px); filter: blur(6px); animation: word-in 0.7s var(--ease-out-expo) forwards; }
+  @keyframes word-in { to { opacity: 1; transform: none; filter: blur(0); } }
+  @media (prefers-reduced-motion: reduce) { .word { opacity: 1; transform: none; filter: none; animation: none; } }
   .sub { font-size: 1rem; line-height: 1.62; color: var(--color-dim); max-width: 52ch; margin: 0 0 2rem; }
   .cta { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; margin-bottom: 3rem; }
 

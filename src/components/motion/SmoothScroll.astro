@@ -1,0 +1,22 @@
+---
+// Lenis smooth scroll (PRO-16) — buttery inertia wheel scroll + smooth anchor jumps.
+// Disabled under reduced-motion (native scroll instead).
+---
+
+<script>
+  import Lenis from "lenis";
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+    function raf(time: number) { lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+    document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((a) => {
+      a.addEventListener("click", (e) => {
+        const id = a.getAttribute("href");
+        if (id && id.length > 1) {
+          const target = document.querySelector(id);
+          if (target) { e.preventDefault(); lenis.scrollTo(target as HTMLElement); }
+        }
+      });
+    });
+  }
+</script>

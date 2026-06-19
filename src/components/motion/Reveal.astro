@@ -1,0 +1,25 @@
+---
+// Reveal-on-scroll (PRO-16): any element with [data-reveal] fades + rises as it
+// enters the viewport. One observer for the whole page. Reduced-motion → shown instantly.
+---
+
+<script>
+  const els = document.querySelectorAll<HTMLElement>("[data-reveal]");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (els.length && !reduce) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            (e.target as HTMLElement).classList.add("in");
+            io.unobserve(e.target);
+          }
+        }
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+    );
+    els.forEach((el) => io.observe(el));
+  } else {
+    els.forEach((el) => el.classList.add("in"));
+  }
+</script>
