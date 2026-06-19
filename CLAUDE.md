@@ -13,8 +13,9 @@ baseball you grip & pitch (The Bullpen game) → booking.
    - Read the **Changelog** (newest first) for current state, then the **Agent Operating Guide**.
    - Also: Requirements/PRD · Acceptance Criteria · Architecture · Build Plan · Tasks · Test Plan · Decisions · 🎯 Bullpen Game Spec.
 2. **This repo** — code is truth. Full design spec: `docs/superpowers/specs/2026-06-19-prodgeek-lab-site-design.md`.
-3. **Linear** workspace **Prodgeek Lab** (team `b1491d9e-b715-46ed-85f2-f8f4fbcaba93`) — execution/sprints.
-   Projects: Website · Bullpen Game · Infra & Autonomy. (Linear = execution truth once writes are enabled.)
+3. **Linear** workspace **Prodgeek Lab**, team **PRO** (`b1491d9e-b715-46ed-85f2-f8f4fbcaba93`) — **the LIVE execution truth.**
+   Projects: Website · Bullpen Game · Infra & Autonomy; issues PRO-5→PRO-30. Writes work — a stale `deny` rule for the
+   Linear tools was removed from `~/.claude/settings.json`; if writes ever 403 again, check that deny list first.
 4. **Auto-memory** `prodgeek-lab.md` loads automatically — trust but verify against the repo.
 
 ## Single source of truth (avoid drift!)
