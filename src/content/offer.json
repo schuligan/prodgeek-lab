@@ -1,0 +1,39 @@
+{
+  "hero": {
+    "eyebrow": "AI venture studio · a few bets at a time",
+    "headline": "Let's build something — together.",
+    "sub": "AI gets you 70% of the way. I build the brutal last 30% — and ship it. I invest the engineering and infrastructure to get it live — weeks, not years — and stay in as a small-stake partner. Not a dev shop that ghosts.",
+    "ballLabel": "Pitch it. For real.",
+    "ballHint": "hold or drag the ball →"
+  },
+  "deal": [
+    { "n": "01", "title": "Pitch me your idea", "body": "I take a few builds at a time, so bring the one that keeps you up at night. No tech background needed." },
+    { "n": "02", "title": "We get it live", "body": "From rough idea to a real product people use. Weeks, not years — I bring architecture, the hard parts, and the finish line." },
+    { "n": "03", "title": "We share a small stake", "body": "I invest my build instead of cash. Equity vests with a short trial — either of us can walk early, clean. I only win if you do." }
+  ],
+  "whyMe": {
+    "heading": "The best of AI and business — and a bench behind me.",
+    "lead": "Most ways to build your idea give you one or the other: a coder who can't tell if it's worth building, or a strategist who can't ship a line of it. With me you get both in one partner who's in it with you — and when your idea needs more, I bring in people who are genuinely the best at what they do.",
+    "pillars": [
+      { "label": "AI that ships", "title": "The brutal 30%", "body": "Auth, payments, scale, the finish line — the parts Cursor & Lovable can't take you through." },
+      { "label": "Business brain", "title": "Real judgment", "body": "A decade taking products & messy ops from idea to shipped. I'll tell you what's worth building." },
+      { "label": "Skin in the game", "title": "A partner, not a bill", "body": "A small stake means I'm in your boat. I only win if we build something that lasts." }
+    ],
+    "bench": [
+      { "title": "Software architects & engineers", "body": "Seriously experienced builders for the hard, scale-it-right parts." },
+      { "title": "Schulich business minds", "body": "Sharp strategy & go-to-market thinking from one of Canada's top business schools." },
+      { "title": "Founders I've built with", "body": "People who've shipped real things and know the road you're on." }
+    ],
+    "commit": "65% of startups die from cofounder fallout. No hype, no ghosting — if your idea won't fly, I'll tell you on the first call. Free.",
+    "credentials": "AI builder · Schulich MBA · PMP · a decade across global enterprise & startups"
+  },
+  "mirror": {
+    "heading": "You've got the idea. Not the build.",
+    "points": [
+      "A Notion full of ideas and no one technical to build them with.",
+      "You think \"I could never make that\" every time you see a cool app.",
+      "You don't want a course or a cofounder hunt — you just want the thing to exist."
+    ],
+    "tag": "Then let's build it together — first conversation's on me."
+  }
+}

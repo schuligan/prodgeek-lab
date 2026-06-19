@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   Design tokens — the single source of truth for every block.
+   Change a value here and the whole site stays consistent.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* surfaces & ink */
+  --color-bg: #0b0d14;
+  --color-surface: #11131d;
+  --color-ink: #eef1f8;
+  --color-dim: rgba(238, 241, 248, 0.82);
+  --color-faint: rgba(238, 241, 248, 0.55);
+
+  /* accents — mint→indigo is the brand gradient; the rest drive scroll-tint */
+  --color-mint: #7fe7d6;
+  --color-indigo: #6c8cff;
+  --color-teal: #5eead4;
+  --color-violet: #c89bff;
+  --color-amber: #ffce8a;
+  --color-rose: #ff9ecb;
+  --grad-accent: linear-gradient(90deg, var(--color-mint), var(--color-indigo));
+
+  /* type scale */
+  --text-hero: clamp(2.4rem, 1rem + 6vw, 4.25rem);
+  --text-h2: clamp(1.6rem, 1.1rem + 2vw, 2.4rem);
+  --text-body: clamp(0.95rem, 0.9rem + 0.3vw, 1.05rem);
+
+  /* spacing rhythm */
+  --space-section: clamp(4rem, 3rem + 5vw, 9rem);
+
+  /* motion */
+  --dur-fast: 150ms;
+  --dur-normal: 300ms;
+  --dur-slow: 900ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* scroll-tint — one knob to tune the whole effect after launch */
+  --tint-intensity: 0.5;
+}
+
+html {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: 1.6;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-mint);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "brand": "Prodgeek·Lab",
+  "tagline": "AI venture studio · Toronto",
+  "nav": [
+    { "label": "Why me", "href": "#why-me" },
+    { "label": "How it works", "href": "#how" },
+    { "label": "About", "href": "#about" },
+    { "label": "Pitch me", "href": "#pitch" }
+  ],
+  "cta": { "label": "Pitch me your idea", "href": "#pitch" },
+  "booking": {
+    "calendlyUrl": "REPLACE_WITH_CALENDLY_URL",
+    "note": "Real Calendly link goes here. Contact email is server-only (env var CONTACT_EMAIL), never in this file or the page."
+  },
+  "socials": [
+    { "label": "GitHub", "href": "https://github.com/schuligan" },
+    { "label": "LinkedIn", "href": "https://www.linkedin.com/in/prateekjha6" },
+    { "label": "YouTube", "href": "https://www.youtube.com/@Beatoid" }
+  ]
+}
