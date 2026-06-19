@@ -12,7 +12,7 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
 <div class="bullpen" data-has-booking={hasBooking ? "true" : "false"} data-booking-url={bookHref}>
   <div class="cta-row">
     <div class="ballwrap" id="bp-wrap">
-      <svg class="ring" viewBox="0 0 76 76" aria-hidden="true">
+      <svg class="bp-ring" viewBox="0 0 76 76" aria-hidden="true">
         <circle cx="38" cy="38" r="34" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3"></circle>
         <circle id="bp-prog" cx="38" cy="38" r="34" fill="none" stroke="var(--color-mint)" stroke-width="3" stroke-linecap="round" stroke-dasharray="214" stroke-dashoffset="214" transform="rotate(-90 38 38)"></circle>
       </svg>
@@ -55,7 +55,7 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   .bullpen { position: relative; }
   .cta-row { display: flex; align-items: center; gap: 1rem; }
   .ballwrap { position: relative; width: 64px; height: 64px; flex: none; }
-  .ring { position: absolute; inset: -6px; width: 76px; height: 76px; pointer-events: none; z-index: 1; }
+  .bp-ring { position: absolute; inset: -6px; width: 76px; height: 76px; pointer-events: none; z-index: 1; }
 
   .ball-btn {
     position: absolute; inset: 0; width: 64px; height: 64px; padding: 0; border: 0; background: none;
