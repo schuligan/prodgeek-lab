@@ -1,6 +1,7 @@
 ---
 import site from "../../content/site.json";
 import offer from "../../content/offer.json";
+import Bullpen from "../../modules/bullpen/Bullpen.astro";
 const { hero, deal } = offer;
 ---
 
@@ -27,8 +28,7 @@ const { hero, deal } = offer;
     <p class="sub" set:html={hero.sub} />
 
     <div class="cta">
-      <a class="ball-link" href={site.cta.href} aria-label={hero.ballLabel}>{hero.ballLabel}</a>
-      <small class="hint">{hero.ballHint}</small>
+      <Bullpen />
     </div>
 
     <ul class="deal" aria-label="How it works">

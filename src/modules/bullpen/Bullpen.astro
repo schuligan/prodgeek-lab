@@ -1,0 +1,235 @@
+---
+// The Bullpen (PRO-21→26): a baseball you grip + pitch — the hero CTA, as a game.
+// Isolated module: all logic/markup/styles live here. Removing <Bullpen /> from the
+// hero leaves the site fully working. v1 = local (no backend); v2 adds the leaderboard.
+import site from "../../content/site.json";
+
+const hasBooking =
+  site.booking.bookingUrl && !site.booking.bookingUrl.startsWith("REPLACE");
+const bookHref = hasBooking ? site.booking.bookingUrl : "#";
+---
+
+<div
+  class="bullpen"
+  data-has-booking={hasBooking ? "true" : "false"}
+  data-booking-url={bookHref}
+>
+  <!-- the ball CTA (sits under the headline) -->
+  <div class="cta-row">
+    <div class="ballwrap" id="bp-wrap">
+      <svg class="ring" viewBox="0 0 76 76" aria-hidden="true">
+        <circle cx="38" cy="38" r="35" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3"></circle>
+        <circle id="bp-prog" cx="38" cy="38" r="35" fill="none" stroke="var(--color-mint)" stroke-width="3" stroke-linecap="round" stroke-dasharray="220" stroke-dashoffset="220" transform="rotate(-90 38 38)"></circle>
+      </svg>
+      <svg id="bp-ball" viewBox="0 0 100 100" role="button" tabindex="0" aria-label="Pitch the ball to book a free chat">
+        <circle cx="50" cy="50" r="46" fill="#fdfdfb" stroke="#e2e0da" stroke-width="1.5"></circle>
+        <path d="M26 16 C 40 34, 40 66, 26 84" fill="none" stroke="#d6402f" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="3 5"></path>
+        <path d="M74 16 C 60 34, 60 66, 74 84" fill="none" stroke="#d6402f" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="3 5"></path>
+      </svg>
+    </div>
+    <div class="label">
+      Pitch it. For real.
+      <small id="bp-hint">hold or drag the ball →</small>
+    </div>
+    <button class="mute" id="bp-mute" type="button" aria-label="Mute crowd sound">🔊</button>
+  </div>
+  <a class="skip" href={bookHref} id="bp-skip">prefer to skip the game? book a time →</a>
+
+  <!-- overlays (positioned within the hero) -->
+  <div class="mitt" id="bp-mitt" aria-hidden="true"></div>
+  <div class="fb" id="bp-fb" aria-hidden="true"><span class="fb-big" id="bp-fb-big"></span></div>
+  <div class="roar" id="bp-roar" aria-hidden="true"></div>
+  <div class="book" id="bp-book" role="dialog" aria-label="Book a free chat" aria-hidden="true">
+    <h4 id="bp-book-title">⚾ Strike — nice arm.</h4>
+    <p>Grab a free 15-min chat. Bring the idea you can't stop thinking about.</p>
+    <a class="book-cta" id="bp-book-cta" href={bookHref}>Book a free chat →</a>
+    <button class="book-close" id="bp-book-close" type="button">maybe later</button>
+  </div>
+</div>
+
+<style>
+  .bullpen { position: relative; }
+  .cta-row { display: flex; align-items: center; gap: 1rem; }
+  .ballwrap { position: relative; width: 64px; height: 64px; flex: none; }
+  .ring { position: absolute; inset: -6px; width: 76px; height: 76px; }
+  #bp-ball { position: absolute; inset: 0; width: 64px; height: 64px; cursor: grab; filter: drop-shadow(0 6px 14px rgba(0,0,0,.5)); will-change: transform; z-index: 4; }
+  #bp-ball.grab { cursor: grabbing; }
+  #bp-ball.flying { z-index: 8; }
+  .label { font-size: 0.95rem; font-weight: 600; color: #fff; }
+  .label small { display: block; font-weight: 400; font-size: 0.75rem; color: var(--color-dim); margin-top: 1px; }
+  .mute { margin-left: auto; background: none; border: 0; font-size: 0.95rem; cursor: pointer; opacity: 0.6; }
+  .mute:hover { opacity: 1; }
+  .skip { display: inline-block; margin-top: 1rem; font-size: 0.78rem; color: var(--color-faint); text-decoration: underline; text-underline-offset: 3px; }
+  .skip:hover { color: var(--color-mint); }
+
+  .mitt {
+    position: absolute; right: 8%; top: 18%; width: 74px; height: 74px; z-index: 3;
+    border-radius: 50% 50% 50% 8px;
+    background: radial-gradient(circle at 40% 35%, #5a3a1e, #2e1c0e);
+    box-shadow: inset 0 0 14px rgba(0,0,0,.6), 0 8px 20px rgba(0,0,0,.4);
+    opacity: 0; transition: opacity .3s, transform .15s; pointer-events: none;
+  }
+  .mitt.show { opacity: 0.85; }
+  .mitt.pop { animation: bp-pop .35s ease; }
+  @keyframes bp-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+
+  .fb { position: absolute; right: 6%; top: 6%; z-index: 9; text-align: center; opacity: 0; pointer-events: none; }
+  .fb.show { animation: bp-fb 1.2s cubic-bezier(.16,1,.3,1); }
+  @keyframes bp-fb { 0% { opacity: 0; transform: translateY(10px) scale(.8); } 22% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; } }
+  .fb-big { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 750; color: var(--color-amber); }
+
+  .roar { position: fixed; inset: 0; z-index: 7; background: #fff; opacity: 0; pointer-events: none; }
+  .roar.go { animation: bp-roar .5s ease; }
+  @keyframes bp-roar { 0% { opacity: 0; } 30% { opacity: .18; } 100% { opacity: 0; } }
+
+  .book {
+    position: absolute; right: 4%; top: 38%; width: min(320px, 80vw); z-index: 10;
+    background: rgba(17,19,29,.97); backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 1.2rem;
+    opacity: 0; transform: translateY(14px); pointer-events: none; transition: all .5s var(--ease-out-expo);
+  }
+  .book.show { opacity: 1; transform: none; pointer-events: auto; }
+  .book h4 { margin: 0 0 .25rem; font-size: 1rem; color: #fff; }
+  .book p { margin: 0 0 .9rem; font-size: .8rem; color: var(--color-dim); }
+  .book-cta { display: inline-block; font-weight: 600; font-size: .85rem; padding: .7rem 1.2rem; border-radius: 999px; background: var(--grad-accent); color: var(--color-bg); text-decoration: none; }
+  .book-close { display: block; margin-top: .7rem; background: none; border: 0; color: var(--color-faint); font-size: .75rem; cursor: pointer; }
+
+  @media (prefers-reduced-motion: reduce) {
+    #bp-ball, .mitt, .book { transition: none; }
+    .fb.show, .roar.go, .mitt.pop { animation: none; }
+  }
+</style>
+
+<script>
+  type El = HTMLElement | null;
+  const root = document.querySelector<HTMLElement>(".bullpen");
+  const hero = document.querySelector<HTMLElement>(".hero");
+  if (root && hero) {
+    const ball = document.getElementById("bp-ball")!;
+    const prog = document.getElementById("bp-prog") as unknown as SVGCircleElement;
+    const wrap = document.getElementById("bp-wrap")!;
+    const hint = document.getElementById("bp-hint")!;
+    const mitt = document.getElementById("bp-mitt")!;
+    const fb = document.getElementById("bp-fb")!;
+    const fbBig = document.getElementById("bp-fb-big")!;
+    const roar = document.getElementById("bp-roar")!;
+    const book = document.getElementById("bp-book")!;
+    const muteBtn = document.getElementById("bp-mute")!;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const hasBooking = root.dataset.hasBooking === "true";
+    const bookingUrl = root.dataset.bookingUrl || "#";
+    const DASH = 220, HOLD = 1400;
+    let charging = false, t0 = 0, dragged = false, sx = 0, sy = 0, busy = false, raf = 0;
+
+    // --- sound (synthesised — no asset; default ON, local mute) ---
+    let muted = localStorage.getItem("bp_muted") === "1";
+    let ac: AudioContext | null = null;
+    const setMute = () => { muteBtn.textContent = muted ? "🔇" : "🔊"; muteBtn.setAttribute("aria-label", muted ? "Unmute crowd sound" : "Mute crowd sound"); };
+    setMute();
+    muteBtn.addEventListener("click", () => { muted = !muted; localStorage.setItem("bp_muted", muted ? "1" : "0"); setMute(); });
+    function pitchSound() {
+      if (muted) return;
+      try {
+        ac = ac || new (window.AudioContext || (window as any).webkitAudioContext)();
+        const now = ac.currentTime;
+        // glove "pop": short filtered noise burst
+        const len = Math.floor(ac.sampleRate * 0.5);
+        const buf = ac.createBuffer(1, len, ac.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+        const src = ac.createBufferSource(); src.buffer = buf;
+        const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 900;
+        const g = ac.createGain(); g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.5, now + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + 0.45); // crowd swell tail
+        src.connect(bp); bp.connect(g); g.connect(ac.destination);
+        src.start(now); src.stop(now + 0.5);
+      } catch (_) { /* audio not available — ignore */ }
+    }
+
+    const ELITE = ["PUNCHOUT! 🔥", "FILTHY.", "Pure cheddar 🧀", "That's an aspirin.", "Bringing the GAS."];
+    const GOOD = ["Nasty slider.", "Painted the corner.", "Sick heat.", "Caught the black."];
+    const pick = (a: string[]) => a[Math.floor(Math.random() * a.length)];
+
+    const heroPointerReduce = reduce;
+    function setBall(x: number, y: number) { ball.style.transform = `translate(${x}px,${y}px)`; }
+    function reset() { ball.style.transform = ""; ball.classList.remove("flying"); prog.style.strokeDashoffset = String(DASH); busy = false; hint.textContent = "again? hold or drag →"; }
+
+    function startCharge(clientX: number, clientY: number) {
+      if (busy) return;
+      charging = true; dragged = false; t0 = Date.now(); sx = clientX; sy = clientY; ball.classList.add("grab");
+      const tick = () => {
+        if (!charging) return;
+        const p = Math.min(1, (Date.now() - t0) / HOLD);
+        prog.style.strokeDashoffset = String(DASH * (1 - p));
+        if (p >= 1 || dragged) { release(); return; }
+        raf = requestAnimationFrame(tick);
+      };
+      tick();
+    }
+    function endCharge() {
+      if (!charging) return;
+      const held = Date.now() - t0;
+      if (held >= HOLD * 0.6 || dragged) { release(); }
+      else { charging = false; cancelAnimationFrame(raf); prog.style.strokeDashoffset = String(DASH); ball.classList.remove("grab"); hint.textContent = "give it some mustard — hold or drag!"; setTimeout(() => { hint.textContent = "hold or drag the ball →"; }, 1500); }
+    }
+    function release() { if (busy) return; charging = false; busy = true; cancelAnimationFrame(raf); prog.style.strokeDashoffset = String(DASH); ball.classList.remove("grab"); pitch(); }
+
+    function pitch() {
+      ball.classList.add("flying");
+      const br = ball.getBoundingClientRect();
+      const mr = mitt.getBoundingClientRect();
+      const x0 = br.left, y0 = br.top;
+      const dx = (mr.left + mr.width / 2 - 24) - x0;
+      const dy = (mr.top + mr.height / 2 - 24) - y0;
+      if (reduce) { land(); return; }
+      const dur = 620; let start = 0;
+      const frame = (ts: number) => {
+        if (!start) start = ts;
+        const p = Math.min(1, (ts - start) / dur);
+        const e = 1 - Math.pow(1 - p, 2);
+        const x = dx * e, y = dy * e - Math.sin(p * Math.PI) * 90;
+        ball.style.transform = `translate(${x}px,${y}px) rotate(${p * 720}deg)`;
+        if (p < 1) requestAnimationFrame(frame); else land();
+      };
+      requestAnimationFrame(frame);
+    }
+
+    function land() {
+      pitchSound();
+      mitt.classList.add("pop"); setTimeout(() => mitt.classList.remove("pop"), 400);
+      if (!reduce) { roar.classList.remove("go"); void roar.offsetWidth; roar.classList.add("go"); confettiBurst(); }
+      fbBig.textContent = Math.random() < 0.5 ? pick(ELITE) : pick(GOOD);
+      fb.classList.remove("show"); void fb.offsetWidth; fb.classList.add("show");
+      // open booking
+      setTimeout(() => {
+        if (hasBooking) { window.open(bookingUrl, "_blank", "noopener"); reset(); }
+        else { book.classList.add("show"); book.setAttribute("aria-hidden", "false"); reset(); }
+      }, 650);
+    }
+
+    function confettiBurst() {
+      const mr = mitt.getBoundingClientRect();
+      const hr = hero.getBoundingClientRect();
+      const cols = ["#7fe7d6", "#6c8cff", "#ffce8a", "#ff9ecb"];
+      for (let i = 0; i < 22; i++) {
+        const c = document.createElement("div");
+        c.style.cssText = `position:absolute;width:7px;height:7px;border-radius:2px;z-index:8;pointer-events:none;background:${cols[i % 4]};left:${mr.left - hr.left + 30}px;top:${mr.top - hr.top + 30}px;`;
+        hero.appendChild(c);
+        const a = Math.random() * 6.28, dist = 50 + Math.random() * 120, du = 600 + Math.random() * 500;
+        c.animate([{ transform: "translate(0,0)", opacity: 1 }, { transform: `translate(${Math.cos(a) * dist}px,${Math.sin(a) * dist + 70}px)`, opacity: 0 }], { duration: du, easing: "cubic-bezier(.2,.6,.3,1)" });
+        setTimeout(() => c.remove(), du);
+      }
+    }
+
+    // pointer
+    ball.addEventListener("pointerdown", (e) => { e.preventDefault(); startCharge(e.clientX, e.clientY); });
+    window.addEventListener("pointermove", (e) => { if (charging && Math.hypot(e.clientX - sx, e.clientY - sy) > 26) dragged = true; });
+    window.addEventListener("pointerup", endCharge);
+    // keyboard
+    ball.addEventListener("keydown", (e) => { if ((e.key === " " || e.key === "Enter") && !busy) { e.preventDefault(); busy = true; pitch(); } });
+    // booking dismiss
+    document.getElementById("bp-book-close")!.addEventListener("click", () => { book.classList.remove("show"); book.setAttribute("aria-hidden", "true"); });
+  }
+</script>
