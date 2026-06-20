@@ -51,11 +51,13 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
     <p class="lb-hint" id="bp-lb-hint">Each hit scores — and it gets harder every pitch. One miss ends the run.</p>
     <ol class="lb-list" id="bp-lb-list" aria-label="Top scores"></ol>
     <form class="lb-form" id="bp-lb-form" hidden>
-      <label for="bp-lb-name">New top-5! Add a name for the board</label>
+      <label for="bp-lb-name">On the board — add your name</label>
       <div class="lb-form-row">
         <input id="bp-lb-name" type="text" maxlength="12" autocomplete="off" placeholder="your name" />
         <button type="submit">Save</button>
       </div>
+      <label class="lb-email-label" for="bp-lb-email">Want the free idea → MVP starter? Drop your email (optional)</label>
+      <input id="bp-lb-email" class="lb-email" type="email" autocomplete="email" placeholder="you@email.com" />
     </form>
     <div class="lb-actions">
       <button class="lb-again" id="bp-lb-again" type="button">Play again</button>
@@ -140,6 +142,11 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   .lb-form button {
     padding: 0.5rem 0.85rem; border: 0; border-radius: 9px; background: var(--grad-accent);
     color: var(--color-bg); font-weight: 600; font-size: 0.8rem; cursor: pointer; min-height: 24px;
+  }
+  .lb-email-label { margin-top: 0.6rem; font-size: 0.72rem; color: var(--color-faint); font-weight: 500; }
+  .lb-email {
+    width: 100%; margin-top: 0.35rem; padding: 0.5rem 0.65rem; border-radius: 9px; min-height: 24px;
+    background: var(--color-bg); border: 1px solid rgba(255,255,255,.14); color: var(--color-ink); font: inherit; font-size: 0.8rem;
   }
   .lb-actions { display: flex; align-items: center; gap: 1rem; margin-top: 0.85rem; }
   .lb-again {
@@ -389,9 +396,10 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
       }
     });
 
-    // ---- Arcade / leaderboard (PRO-27): opt-in replay loop, local top-5 ----
-    // Booking stays the primary path; this only unlocks after the first pitch.
-    // Scores are kept in localStorage; real server-side anti-cheat lands in PRO-28.
+    // ---- Arcade / leaderboard (PRO-27 local + PRO-28 cloud) ----
+    // Booking stays primary; unlocks after the first pitch. Scores sync to a
+    // shared board via /api/score (server-validated, optional goodie email);
+    // localStorage is the offline fallback when the API is unreachable.
     const arcadeToggle = document.getElementById("bp-arcade")!;
     const lb = document.getElementById("bp-lb")!;
     const lbScore = document.getElementById("bp-lb-score")!;
@@ -400,31 +408,36 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
     const lbList = document.getElementById("bp-lb-list")!;
     const lbForm = document.getElementById("bp-lb-form") as HTMLFormElement;
     const lbName = document.getElementById("bp-lb-name") as HTMLInputElement;
+    const lbEmail = document.getElementById("bp-lb-email") as HTMLInputElement;
     const lbAgain = document.getElementById("bp-lb-again")!;
     const LB_KEY = "pg_bullpen_top5";
     const RUN_HINT = "Each hit scores — and it gets harder every pitch. One miss ends the run.";
-    let pendingScore = 0;
+    type Row = { name: string; score: number };
+    let runStart = 0, pendingScore = 0, pendingHits = 0;
 
-    function loadTop(): { name: string; score: number }[] {
-      try { return JSON.parse(localStorage.getItem(LB_KEY) || "[]"); } catch (_) { return []; }
-    }
-    function saveTop(rows: { name: string; score: number }[]) {
-      localStorage.setItem(LB_KEY, JSON.stringify(rows.slice(0, 5)));
-    }
+    function loadLocal(): Row[] { try { return JSON.parse(localStorage.getItem(LB_KEY) || "[]"); } catch (_) { return []; } }
+    function saveLocal(rows: Row[]) { localStorage.setItem(LB_KEY, JSON.stringify(rows.slice(0, 10))); }
     function esc(s: string) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
-    function renderBoard(highlight = -1) {
-      const rows = loadTop();
+    function renderBoard(rows: Row[], highlight = -1) {
       lbList.innerHTML = rows.length
         ? rows.map((r, i) => `<li class="${i === highlight ? "me" : ""}"><span><span class="rank">${i + 1}</span>${esc(r.name)}</span><span class="pts">${r.score}</span></li>`).join("")
         : `<li><span><span class="rank">—</span>no scores yet — be the first</span><span class="pts"></span></li>`;
     }
-    function qualifies(s: number) { const rows = loadTop(); return s > 0 && (rows.length < 5 || s > rows[rows.length - 1].score); }
+    async function fetchTop(): Promise<Row[] | null> {
+      try {
+        const res = await fetch("/api/score", { headers: { accept: "application/json" } });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data && Array.isArray(data.top) && !data.offline ? (data.top as Row[]) : null;
+      } catch (_) { return null; }
+    }
+    async function showBoard(highlight = -1) { renderBoard((await fetchTop()) ?? loadLocal(), highlight); }
     function updateHud() { lbScore.textContent = `Score ${score}`; lbLevel.textContent = `Level ${level}`; }
     function revealArcade() { unlocked = true; arcadeToggle.hidden = false; }
 
     function newRun() {
-      arcade = true; running = true; score = 0; level = 1; updateHud();
-      lbForm.hidden = true; lbHint.textContent = RUN_HINT; renderBoard();
+      arcade = true; running = true; score = 0; level = 1; runStart = Date.now(); updateHud();
+      lbForm.hidden = true; lbHint.textContent = RUN_HINT; showBoard();
     }
     function startArcade() {
       arcadeToggle.hidden = true; lb.hidden = false;
@@ -438,21 +451,38 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
       if (!running) return;
       running = false;
       lbHint.textContent = `Run over — ${score} point${score === 1 ? "" : "s"}.`;
-      if (qualifies(score)) { pendingScore = score; lbForm.hidden = false; lbName.value = ""; lbName.focus(); }
-      else { renderBoard(); }
+      if (score > 0) { pendingScore = score; pendingHits = level - 1; lbForm.hidden = false; lbName.value = ""; lbEmail.value = ""; lbName.focus(); }
+      else { showBoard(); }
     }
 
     arcadeToggle.addEventListener("click", startArcade);
     lbAgain.addEventListener("click", () => { newRun(); ball.focus(); });
-    lbForm.addEventListener("submit", (e) => {
+    lbForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const name = (lbName.value.trim() || "you").slice(0, 12);
-      const rows = loadTop();
-      rows.push({ name, score: pendingScore });
-      rows.sort((a, b) => b.score - a.score);
-      saveTop(rows);
+      const email = lbEmail.value.trim();
       lbForm.hidden = true;
-      renderBoard(rows.findIndex((r) => r.name === name && r.score === pendingScore));
+
+      // Keep a local copy as the offline fallback no matter what.
+      const local = loadLocal();
+      local.push({ name, score: pendingScore });
+      local.sort((a, b) => b.score - a.score);
+      saveLocal(local);
+
+      // Submit to the shared board; the server validates + may send the goodie email.
+      let server: Row[] | null = null;
+      try {
+        const res = await fetch("/api/score", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, score: pendingScore, hits: pendingHits, level, runMs: Date.now() - runStart }),
+        });
+        if (res.ok) { const data = await res.json(); if (Array.isArray(data.top)) server = data.top; }
+      } catch (_) { /* offline → local fallback */ }
+
+      const rows = server ?? loadLocal().slice(0, 10);
+      renderBoard(rows, rows.findIndex((r) => r.name === name && r.score === pendingScore));
+      if (email) lbHint.textContent = `Saved — the idea → MVP starter is on its way to ${email}.`;
     });
   }
 </script>
