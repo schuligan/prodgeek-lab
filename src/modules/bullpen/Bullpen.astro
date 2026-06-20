@@ -80,9 +80,10 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
 
   .label { font-size: 0.95rem; font-weight: 600; color: #fff; }
   .label small { display: block; font-weight: 400; font-size: 0.72rem; color: var(--color-dim); margin-top: 1px; }
-  .mute { margin-left: auto; background: none; border: 0; font-size: 0.95rem; cursor: pointer; opacity: 0.6; }
+  .mute { margin-left: auto; background: none; border: 0; font-size: 0.95rem; cursor: pointer; opacity: 0.6;
+    display: inline-flex; align-items: center; justify-content: center; min-width: 24px; min-height: 24px; padding: 2px; }
   .mute:hover { opacity: 1; }
-  .skip { display: inline-block; margin-top: 1rem; font-size: 0.78rem; color: var(--color-faint); text-decoration: underline; text-underline-offset: 3px; }
+  .skip { display: inline-block; margin-top: 1rem; padding: 0.35rem 0; font-size: 0.78rem; color: var(--color-faint); text-decoration: underline; text-underline-offset: 3px; }
   .skip:hover { color: var(--color-mint); }
 
   .fb { position: fixed; right: 7%; top: 14%; z-index: 31; text-align: center; opacity: 0; pointer-events: none; }
@@ -96,7 +97,7 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
 
   .book {
     position: fixed; right: 5%; top: 16%; width: min(320px, 84vw); z-index: 32;
-    background: rgba(17,19,29,.97); backdrop-filter: blur(6px);
+    background: rgba(17,19,29,.97); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
     border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 1.2rem;
     opacity: 0; transform: translateY(14px); pointer-events: none; transition: all .5s var(--ease-out-expo);
   }
@@ -104,7 +105,7 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   .book h4 { margin: 0 0 .25rem; font-size: 1rem; color: #fff; }
   .book p { margin: 0 0 .9rem; font-size: .8rem; color: var(--color-dim); }
   .book-cta { display: inline-block; font-weight: 600; font-size: .85rem; padding: .7rem 1.2rem; border-radius: 999px; background: var(--grad-accent); color: var(--color-bg); text-decoration: none; }
-  .book-close { display: block; margin-top: .7rem; background: none; border: 0; color: var(--color-faint); font-size: .75rem; cursor: pointer; }
+  .book-close { display: block; margin-top: .5rem; padding: .4rem .25rem; background: none; border: 0; color: var(--color-faint); font-size: .75rem; cursor: pointer; min-height: 24px; }
 
   @media (prefers-reduced-motion: reduce) {
     .ball-btn, .book { transition: none; }
@@ -259,7 +260,7 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
         say(Math.random() < 0.5 ? pick(ELITE) : pick(GOOD));
         setTimeout(() => {
           if (hasBooking) window.open(bookingUrl, "_blank", "noopener");
-          else { book.classList.add("show"); book.setAttribute("aria-hidden", "false"); }
+          else openBook();
           reset();
         }, 700);
       } else { missSound(); hint.textContent = kind === "short" ? pick(SHORT) : pick(WIDE); setTimeout(reset, 1100); }
@@ -281,6 +282,31 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
     window.addEventListener("pointermove", (e) => { if (charging) aimAt(e.clientX, e.clientY); });
     window.addEventListener("pointerup", release);
     ball.addEventListener("keydown", (e) => { if ((e.key === " " || e.key === "Enter") && !busy && !charging) { e.preventDefault(); busy = true; fire("hit"); } });
-    document.getElementById("bp-book-close")!.addEventListener("click", () => { book.classList.remove("show"); book.setAttribute("aria-hidden", "true"); });
+
+    // Booking dialog: move focus in on open, Escape/close restores focus to the
+    // ball, and Tab is trapped between the two controls while it's open.
+    const bookCta = document.getElementById("bp-book-cta")!;
+    const bookClose = document.getElementById("bp-book-close")!;
+    function openBook() {
+      book.classList.add("show");
+      book.setAttribute("aria-hidden", "false");
+      bookCta.focus();
+    }
+    function closeBook() {
+      if (book.getAttribute("aria-hidden") === "true") return;
+      book.classList.remove("show");
+      book.setAttribute("aria-hidden", "true");
+      ball.focus();
+    }
+    bookClose.addEventListener("click", closeBook);
+    book.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { e.preventDefault(); closeBook(); return; }
+      if (e.key === "Tab") {
+        const f = [bookCta, bookClose];
+        const i = f.indexOf(document.activeElement as HTMLElement);
+        if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+        else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+      }
+    });
   }
 </script>
