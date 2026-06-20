@@ -12,6 +12,9 @@ import ScrollTint from "../components/scroll-tint/ScrollTint.astro";
 import CursorGlow from "../components/cursor-glow/CursorGlow.astro";
 import Reveal from "../components/motion/Reveal.astro";
 import SmoothScroll from "../components/motion/SmoothScroll.astro";
+// Vercel Web Analytics — same-origin script (/_vercel/insights/*), so the
+// strict 'self' CSP covers it. Must also be toggled on in Vercel → Analytics.
+import Analytics from "@vercel/analytics/astro";
 
 interface Props {
   title?: string;
@@ -93,5 +96,6 @@ const jsonLd = {
     <slot />
     <Reveal />
     <SmoothScroll />
+    <Analytics />
   </body>
 </html>
