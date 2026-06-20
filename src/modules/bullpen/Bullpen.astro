@@ -41,6 +41,28 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   </div>
   <a class="skip" href={bookHref} id="bp-skip">prefer to skip the game? book a time →</a>
 
+  <!-- Arcade / leaderboard (PRO-27) — unlocks after the first pitch. Booking stays the primary path. -->
+  <button class="arcade-toggle" id="bp-arcade" type="button" hidden>🏆 Loved that? Play the Bullpen — beat your best</button>
+  <div class="lb" id="bp-lb" role="region" aria-label="Bullpen leaderboard" hidden>
+    <div class="lb-head">
+      <span class="lb-score" id="bp-lb-score">Score 0</span>
+      <span class="lb-level" id="bp-lb-level">Level 1</span>
+    </div>
+    <p class="lb-hint" id="bp-lb-hint">Each hit scores — and it gets harder every pitch. One miss ends the run.</p>
+    <ol class="lb-list" id="bp-lb-list" aria-label="Top scores"></ol>
+    <form class="lb-form" id="bp-lb-form" hidden>
+      <label for="bp-lb-name">New top-5! Add a name for the board</label>
+      <div class="lb-form-row">
+        <input id="bp-lb-name" type="text" maxlength="12" autocomplete="off" placeholder="your name" />
+        <button type="submit">Save</button>
+      </div>
+    </form>
+    <div class="lb-actions">
+      <button class="lb-again" id="bp-lb-again" type="button">Play again</button>
+      <a class="lb-book" id="bp-lb-book" href={bookHref}>or pitch me for real →</a>
+    </div>
+  </div>
+
   <div class="fb" id="bp-fb" aria-hidden="true"><span class="fb-big" id="bp-fb-big"></span></div>
   <div class="roar" id="bp-roar" aria-hidden="true"></div>
   <div class="book" id="bp-book" role="dialog" aria-label="Book a free chat" aria-hidden="true">
@@ -85,6 +107,48 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
   .mute:hover { opacity: 1; }
   .skip { display: inline-block; margin-top: 1rem; padding: 0.35rem 0; font-size: 0.78rem; color: var(--color-faint); text-decoration: underline; text-underline-offset: 3px; }
   .skip:hover { color: var(--color-mint); }
+
+  /* Arcade / leaderboard (PRO-27) */
+  .arcade-toggle {
+    display: inline-block; margin-top: 0.85rem; padding: 0.5rem 0.9rem; border-radius: 999px;
+    background: rgba(127,231,214,.1); border: 1px solid rgba(127,231,214,.32);
+    color: var(--color-mint); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+    transition: background var(--dur-fast), transform var(--dur-fast);
+  }
+  .arcade-toggle:hover { background: rgba(127,231,214,.18); transform: translateY(-1px); }
+  .lb {
+    margin-top: 1rem; max-width: 340px; padding: 1rem 1.1rem;
+    background: var(--color-surface); border: 1px solid rgba(255,255,255,.08); border-radius: 16px;
+  }
+  .lb-head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+  .lb-score { font-weight: 700; font-size: 1.05rem; color: #fff; }
+  .lb-level { font-size: 0.78rem; font-weight: 600; color: var(--color-mint); }
+  .lb-hint { margin: 0.35rem 0 0.75rem; font-size: 0.76rem; line-height: 1.5; color: var(--color-dim); }
+  .lb-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.3rem; }
+  .lb-list li { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.82rem; color: var(--color-dim);
+    padding: 0.3rem 0.5rem; border-radius: 8px; background: rgba(255,255,255,.03); }
+  .lb-list li.me { color: #fff; background: rgba(127,231,214,.12); }
+  .lb-list li .rank { color: var(--color-faint); margin-right: 0.5rem; }
+  .lb-list li .pts { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .lb-form { margin-top: 0.8rem; }
+  .lb-form label { display: block; font-size: 0.74rem; color: var(--color-mint); margin-bottom: 0.35rem; }
+  .lb-form-row { display: flex; gap: 0.4rem; }
+  .lb-form input {
+    flex: 1; min-width: 0; padding: 0.5rem 0.65rem; border-radius: 9px; min-height: 24px;
+    background: var(--color-bg); border: 1px solid rgba(255,255,255,.14); color: var(--color-ink); font: inherit; font-size: 0.8rem;
+  }
+  .lb-form button {
+    padding: 0.5rem 0.85rem; border: 0; border-radius: 9px; background: var(--grad-accent);
+    color: var(--color-bg); font-weight: 600; font-size: 0.8rem; cursor: pointer; min-height: 24px;
+  }
+  .lb-actions { display: flex; align-items: center; gap: 1rem; margin-top: 0.85rem; }
+  .lb-again {
+    padding: 0.5rem 0.95rem; border-radius: 999px; border: 1px solid rgba(127,231,214,.32);
+    background: none; color: var(--color-mint); font-weight: 600; font-size: 0.78rem; cursor: pointer; min-height: 24px;
+  }
+  .lb-again:hover { background: rgba(127,231,214,.12); }
+  .lb-book { font-size: 0.76rem; color: var(--color-faint); text-decoration: underline; text-underline-offset: 3px; padding: 0.35rem 0; }
+  .lb-book:hover { color: var(--color-mint); }
 
   .fb { position: fixed; right: 7%; top: 14%; z-index: 31; text-align: center; opacity: 0; pointer-events: none; }
   .fb.show { animation: bp-fb 1.3s cubic-bezier(.16,1,.3,1); }
@@ -133,6 +197,8 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
 
     const DASH = 214, CHARGE = 750, HIT_POWER = 0.55, CONE = 64;
     let charging = false, t0 = 0, sx = 0, sy = 0, lx = 0, ly = 0, busy = false, raf = 0;
+    // Arcade / leaderboard (PRO-27): off until the player opts in after their first pitch.
+    let arcade = false, running = false, level = 1, score = 0, unlocked = false;
 
     // ---- sound: "tan-tan-tan" rising riff + cheer ----
     let muted = localStorage.getItem("bp_muted") === "1";
@@ -228,8 +294,12 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
       prog.style.strokeDashoffset = String(DASH);
       ball.style.transform = "";
       busy = true;
-      if (power < HIT_POWER) fire("short");
-      else if (angle <= CONE) fire("hit");
+      // In arcade mode the target gets less forgiving each level (tighter aim
+      // cone + more charge required); normal first-pitch mode stays generous.
+      const hp = arcade ? Math.min(0.8, HIT_POWER + (level - 1) * 0.03) : HIT_POWER;
+      const cone = arcade ? Math.max(22, CONE - (level - 1) * 5) : CONE;
+      if (power < hp) fire("short");
+      else if (angle <= cone) fire("hit");
       else fire("wide");
     }
 
@@ -257,13 +327,23 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
         target!.classList.add("hit"); setTimeout(() => target!.classList.remove("hit"), 700);
         if (!reduce) { roar.classList.remove("go"); void roar.offsetWidth; roar.classList.add("go"); confetti(t.x, t.y); }
         hitSound();
-        say(Math.random() < 0.5 ? pick(ELITE) : pick(GOOD));
-        setTimeout(() => {
-          if (hasBooking) window.open(bookingUrl, "_blank", "noopener");
-          else openBook();
-          reset();
-        }, 700);
-      } else { missSound(); hint.textContent = kind === "short" ? pick(SHORT) : pick(WIDE); setTimeout(reset, 1100); }
+        if (arcade) {
+          say(pick(ELITE));
+          setTimeout(() => { arcadeHit(); reset(); }, 700);
+        } else {
+          say(Math.random() < 0.5 ? pick(ELITE) : pick(GOOD));
+          setTimeout(() => {
+            if (hasBooking) window.open(bookingUrl, "_blank", "noopener");
+            else openBook();
+            revealArcade();
+            reset();
+          }, 700);
+        }
+      } else {
+        missSound(); hint.textContent = kind === "short" ? pick(SHORT) : pick(WIDE);
+        if (arcade) setTimeout(() => { arcadeMiss(); reset(); }, 900);
+        else setTimeout(reset, 1100);
+      }
     }
 
     function confetti(cx: number, cy: number) {
@@ -307,6 +387,72 @@ const bookHref = hasBooking ? site.booking.bookingUrl : "#";
         if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
         else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
       }
+    });
+
+    // ---- Arcade / leaderboard (PRO-27): opt-in replay loop, local top-5 ----
+    // Booking stays the primary path; this only unlocks after the first pitch.
+    // Scores are kept in localStorage; real server-side anti-cheat lands in PRO-28.
+    const arcadeToggle = document.getElementById("bp-arcade")!;
+    const lb = document.getElementById("bp-lb")!;
+    const lbScore = document.getElementById("bp-lb-score")!;
+    const lbLevel = document.getElementById("bp-lb-level")!;
+    const lbHint = document.getElementById("bp-lb-hint")!;
+    const lbList = document.getElementById("bp-lb-list")!;
+    const lbForm = document.getElementById("bp-lb-form") as HTMLFormElement;
+    const lbName = document.getElementById("bp-lb-name") as HTMLInputElement;
+    const lbAgain = document.getElementById("bp-lb-again")!;
+    const LB_KEY = "pg_bullpen_top5";
+    const RUN_HINT = "Each hit scores — and it gets harder every pitch. One miss ends the run.";
+    let pendingScore = 0;
+
+    function loadTop(): { name: string; score: number }[] {
+      try { return JSON.parse(localStorage.getItem(LB_KEY) || "[]"); } catch (_) { return []; }
+    }
+    function saveTop(rows: { name: string; score: number }[]) {
+      localStorage.setItem(LB_KEY, JSON.stringify(rows.slice(0, 5)));
+    }
+    function esc(s: string) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+    function renderBoard(highlight = -1) {
+      const rows = loadTop();
+      lbList.innerHTML = rows.length
+        ? rows.map((r, i) => `<li class="${i === highlight ? "me" : ""}"><span><span class="rank">${i + 1}</span>${esc(r.name)}</span><span class="pts">${r.score}</span></li>`).join("")
+        : `<li><span><span class="rank">—</span>no scores yet — be the first</span><span class="pts"></span></li>`;
+    }
+    function qualifies(s: number) { const rows = loadTop(); return s > 0 && (rows.length < 5 || s > rows[rows.length - 1].score); }
+    function updateHud() { lbScore.textContent = `Score ${score}`; lbLevel.textContent = `Level ${level}`; }
+    function revealArcade() { unlocked = true; arcadeToggle.hidden = false; }
+
+    function newRun() {
+      arcade = true; running = true; score = 0; level = 1; updateHud();
+      lbForm.hidden = true; lbHint.textContent = RUN_HINT; renderBoard();
+    }
+    function startArcade() {
+      arcadeToggle.hidden = true; lb.hidden = false;
+      ball.setAttribute("aria-label", "Pitch the ball — arcade mode");
+      newRun();
+      lb.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+      ball.focus();
+    }
+    function arcadeHit() { if (!running) return; score += 100 * level; level += 1; updateHud(); }
+    function arcadeMiss() {
+      if (!running) return;
+      running = false;
+      lbHint.textContent = `Run over — ${score} point${score === 1 ? "" : "s"}.`;
+      if (qualifies(score)) { pendingScore = score; lbForm.hidden = false; lbName.value = ""; lbName.focus(); }
+      else { renderBoard(); }
+    }
+
+    arcadeToggle.addEventListener("click", startArcade);
+    lbAgain.addEventListener("click", () => { newRun(); ball.focus(); });
+    lbForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = (lbName.value.trim() || "you").slice(0, 12);
+      const rows = loadTop();
+      rows.push({ name, score: pendingScore });
+      rows.sort((a, b) => b.score - a.score);
+      saveTop(rows);
+      lbForm.hidden = true;
+      renderBoard(rows.findIndex((r) => r.name === name && r.score === pendingScore));
     });
   }
 </script>
